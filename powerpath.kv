@@ -1,0 +1,249 @@
+<HomeScreen>:
+    FloatLayout:
+
+        Label:
+            text: "PowerPath"
+            font_size: 45
+            font_name: "Georgia"
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
+        Label:
+            text: "It's about Progress"
+            font_size: 15
+            italic: True
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Button:
+            text: "My Exercises"
+            size_hint: 0.5, 0.15
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "choose"
+
+        Button:
+            text: "Add Exercise"
+            size_hint: 0.5, 0.15
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "add"
+
+
+<AddScreen>:
+    FloatLayout:
+
+        TextInput:
+            id: ex_input
+            hint_text: "Exercise"
+            font_size: 30
+            font_name: "Arial"
+            bold: True
+            size_hint: 0.7, 0.085
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+        Button:
+            text: "Done"
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            on_press: root.add_exercise()
+
+        Label:
+            id: feedback_label
+            text: ""
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+
+
+        Button:
+            text: "Back"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.ids.feedback_label.text =  ""
+                root.manager.transition.direction = "right"
+                app.root.current = "home"
+
+
+<ChoosingScreen>:
+    FloatLayout:
+
+        Spinner:
+            id: ex_spinner
+            text: "Select Exercise"
+            size_hint: 0.75, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Button:
+            text: "View Stats"
+            font_size: 24
+            bold: True
+            size_hint: 0.6, 0.15
+            pos_hint: {"center_x": 0.5, "center_y": 0.65}
+
+        Button:
+            text: "Manage Sets"
+            size_hint: 0.45, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.38}
+            on_press: root.open_set_manager()
+
+
+        Button:
+            text: "Delete Exercise"
+            size_hint: 0.45, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.24}
+            background_color: 1, 0, 0, 1
+            on_press: root.open_popup()
+
+        Button:
+            text: "Back"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.manager.transition.direction = "right"
+                app.root.current = "home"
+
+
+<DelExPopup@Popup>:
+    title: "Delete Exercise"
+    size_hint: 0.8, 0.7
+    auto_dismiss: False
+
+    FloatLayout:
+
+        Label:
+            text: "Are you sure?"
+            font_size: 30
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Label:
+            text: "(All exercise data will be lost)"
+            font_size: 12
+            italic: True
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+        Button:
+            text: "Cancel"
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            on_press: root.dismiss()
+
+        Button:
+            text: "Yes"
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_press:
+                root.delete_exercise()
+                app.root.transition.direction = "right"
+                app.root.current = "home"
+
+
+<ManageScreen>:
+    FloatLayout:
+
+        Label:
+            id: mnglabel
+            font_size: 30
+            bold: True
+            size_hint: 0.6, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+        Button:
+            text: "Add Set"
+            size_hint: 0.6, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.45}
+            on_press: root.open_addset_screen()
+
+        Button:
+            text: "Delete Set"
+            size_hint: 0.6, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.25}
+            on_press: root.open_delset_screen()
+
+        Button:
+            text: "Back"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.manager.transition.direction = "right"
+                app.root.current = "choose"
+
+
+<AddSetScreen>:
+    FloatLayout:
+
+        Label:
+            text: "New Set"
+            font_size: 28
+            bold: True
+            pos_hint: {"center_x": 0.5, "center_y": 0.8}
+
+        TextInput:
+            id: set_date
+            hint_text: "Date (DD.MM.YYYY)"
+            font_size: 17
+            size_hint: 0.7, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+
+        TextInput:
+            id: set_weight
+            hint_text: "Weight (in KG)"
+            font_size: 17
+            size_hint: 0.7, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.43}
+
+        Button:
+            text: "Done"
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.25}
+            on_press:
+                root.add_set()
+
+        Label:
+            id: addset_feedback
+            font_size: 15
+            size_hint: 0.3, 0.07
+            pos_hint: {"center_x": 0.5, "center_y": 0.15}
+
+        Button:
+            text: "Back"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.manager.transition.direction = "right"
+                app.root.current = "manage"
+
+
+<DelSetScreen>:
+    FloatLayout:
+
+        Spinner:
+            id: delset_spinner
+            text: "Select Set"
+            font_size: 25
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Button:
+            text: "Delete"
+            background_color: 1, 0, 0, 1
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            on_press: root.open_popup()
+
+        Button:
+            text: "Back"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.manager.transition.direction = "right"
+                app.root.current = "manage"
+
+<DelSetPopup@PopUp>:
+    title: "Delete Set"
+    size_hint: 0.8, 0.7
+    auto_dismiss: False
+
+    FloatLayout:
