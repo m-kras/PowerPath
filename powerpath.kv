@@ -1,98 +1,263 @@
+#:import Factory kivy.factory.Factory
+#:import sp kivy.metrics.sp
+
+<Button>:
+    font_name: "Parkinsans.ttf"
+
+<Label>:
+    font_name: "Parkinsans.ttf"
+
+<Spinner>:
+    font_name: "Parkinsans.ttf"
+
+<TextInput>:
+    font_name: "Parkinsans.ttf"
+
+
+<MyScreenManager>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
 <HomeScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     FloatLayout:
 
         Label:
             text: "PowerPath"
-            font_size: 45
-            font_name: "Georgia"
+            font_size: 65
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Label:
             text: "It's about Progress"
-            font_size: 15
+            font_size: 25
             italic: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+            pos_hint: {"center_x": 0.5, "center_y": 0.82}
 
         Button:
-            text: "My Exercises"
-            size_hint: 0.5, 0.15
+            text: "Past Workouts"
+            size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.6}
             on_press:
                 root.manager.transition.direction = "left"
-                app.root.current = "choose"
+                app.root.current = "past"
 
         Button:
-            text: "Add Exercise"
-            size_hint: 0.5, 0.15
+            text: "Manage Workouts"
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "manage"
+
+        Button:
+            text: "New Session"
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "startsession"
+
+
+<PastScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        BoxLayout:
+
+            orientation: "vertical"
+            size_hint_y: None
+            size_hint_x: None
+            height: self.minimum_height
+            width: root.width
+            spacing: 25
+            padding: 30
+
+            Button:
+                text: "Back"
+                size_hint_x: 0.25
+                size_hint_y: None
+                pos_hint: {"x": 0.01}
+                height: 65
+                on_press:
+                    root.manager.transition.direction = "right"
+                    app.root.current = "home"
+
+            Label:
+                text: "Past Workouts"
+                font_size: 50
+                size_hint_y: None
+
+            Spinner:
+                id: workout_spinner
+                size_hint_x: 0.65
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: 50
+
+            Label:
+                id: feedback_label
+                font_size: 25
+                bold: True
+                size_hint_y: None
+                height: 70
+
+            Button:
+                text: "Show"
+                size_hint_x: 0.5
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: 80
+                on_press: root.show_past_workouts()
+
+            Label:
+                id: main_label
+                font_size: 16
+                halign: "center"
+                valign: "top"
+                text_size: self.width, None
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+
+<ManageScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: "Manage Workouts"
+            font_size: 60
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Button:
+            text: "Add Workout"
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "addwrk"
+
+        Button:
+            text: "Delete Workout"
+            size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             on_press:
                 root.manager.transition.direction = "left"
-                app.root.current = "add"
-
-
-<AddScreen>:
-    FloatLayout:
-
-        TextInput:
-            id: ex_input
-            hint_text: "Exercise"
-            font_size: 30
-            font_name: "Arial"
-            bold: True
-            size_hint: 0.7, 0.085
-            pos_hint: {"center_x": 0.5, "center_y": 0.75}
-
-        Button:
-            text: "Done"
-            size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.4}
-            on_press: root.add_exercise()
-
-        Label:
-            id: feedback_label
-            text: ""
-            size_hint: 0.4, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.3}
-
+                app.root.current = "delwrk"
 
         Button:
             text: "Back"
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.05}
             on_press:
-                root.ids.feedback_label.text =  ""
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
 
 
-<ChoosingScreen>:
+<AddWrkScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        TextInput:
+            id: name_input
+            hint_text: "Workout Name"
+            font_size: 40
+            bold: True
+            size_hint: 0.7, 0.085
+            pos_hint: {"center_x": 0.5, "center_y": 0.8}
+
+        TextInput:
+            id: exercise_input
+            font_size: 40
+            size_hint: 0.7, 0.085
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+
+        Button:
+            text: "Add"
+            size_hint: 0.45, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_press: root.add_exercise()
+
+        Label:
+            id: feedback_label
+            text: ""
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+
+        Button:
+            text: "Save"
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            background_color: 0, 0.5, 0.7, 1
+            background_normal: ""
+            on_press:
+                root.save_workout()
+
+        Button:
+            text: "Cancel"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.open_popup()
+
+
+<DelWrkScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     FloatLayout:
 
         Spinner:
-            id: ex_spinner
-            text: "Select Exercise"
-            size_hint: 0.75, 0.05
+            id: delwrk_spinner
+            text: "Select Workout"
+            font_size: 25
+            size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
-            text: "View Stats"
-            font_size: 24
-            bold: True
-            size_hint: 0.6, 0.15
-            pos_hint: {"center_x": 0.5, "center_y": 0.65}
-
-        Button:
-            text: "Manage Sets"
-            size_hint: 0.45, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.38}
-            on_press: root.open_set_manager()
-
-
-        Button:
-            text: "Delete Exercise"
-            size_hint: 0.45, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.24}
+            text: "Delete"
             background_color: 1, 0, 0, 1
+            background_normal: ""
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
             on_press: root.open_popup()
 
         Button:
@@ -101,31 +266,220 @@
             pos_hint: {"x": 0.65, "y": 0.05}
             on_press:
                 root.manager.transition.direction = "right"
+                app.root.current = "manage"
+
+
+<StartSessionScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: "New Session"
+            font_size: 55
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
+        Spinner:
+            id: workout_spinner
+            text: "Select Workout"
+            font_size: 40
+            size_hint: 0.75, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.73}
+
+        Label:
+            text: "Date:"
+            font_size: 30
+            size_hint: 0.3, 0.08
+            pos_hint: {"center_x": 0.18, "center_y": 0.58}
+
+        TextInput:
+            id: date_input
+            font_size: 30
+            size_hint: 0.5, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.58}
+
+        Button:
+            text: "Start Session"
+            font_size: 35
+            size_hint: 0.5, 0.15
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            background_color: 0, 0.5, 0.7, 1
+            background_normal: ""
+            on_press: root.start_session()
+
+        Label:
+            id: feedback_label
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.25}
+            bold: True
+
+        Button:
+            text: "Back"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press:
+                root.manager.transition.direction = "right"
                 app.root.current = "home"
 
 
-<DelExPopup@Popup>:
-    title: "Delete Exercise"
+<SessionScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            id: date_label
+            font_size: 25
+            bold: True
+            pos_hint: {"center_x": 0.88, "center_y": 0.98}
+
+        Button:
+            text: "Previous Workout"
+            font_size: 25
+            italic: True
+            size_hint: 0.25, 0.05
+            pos_hint: {"center_x": 0.14, "center_y": 0.96}
+            on_press: root.open_prev_popup()
+
+        Label:
+            id: workout_label
+            font_size: 60
+            bold: True
+            size_hint: 0.75, 0.15
+            pos_hint: {"center_x": 0.5, "center_y": 0.87}
+
+        Label:
+            id: exerset_label
+            font_size: 50
+            size_hint: 0.7, 0.15
+            pos_hint: {"center_x": 0.5, "center_y": 0.79}
+        
+        TextInput:
+            id: weight_input
+            hint_text: "Weight in KG"
+            font_size: 35
+            size_hint: 0.65, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.65}
+
+        TextInput:
+            id: reps_input
+            hint_text: "Reps"
+            font_size: 35
+            size_hint: 0.65, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+
+        Label:
+            id: feedback_label
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            bold: True
+
+        Button:
+            text: "Add Set"
+            font_size: 40
+            size_hint: 0.35, 0.08
+            pos_hint: {"center_x": 0.25, "center_y": 0.4}
+            on_press: root.add_set()
+
+        Button:
+            text: "Next Exercise"
+            font_size: 40
+            size_hint: 0.35, 0.08
+            pos_hint: {"center_x": 0.75, "center_y": 0.4}
+            on_press: root.next_exercise()
+
+        Button:
+            text: "SAVE"
+            size_hint: 0.55, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.22}
+            background_color: 0, 0.5, 0.7, 1
+            background_normal: ""
+            on_press: root.save_session()
+
+        Button:
+            text: "Cancel"
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_press: Factory.CancelPopup().open()
+
+
+<CancelPopup@PopUp>:
+    title: "Cancel"
     size_hint: 0.8, 0.7
     auto_dismiss: False
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
     FloatLayout:
 
         Label:
             text: "Are you sure?"
+            font_size: 50
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Label:
+            text: "(Input will not be saved.)"
             font_size: 30
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+        Button:
+            text: "Yes"
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_press:
+                root.dismiss()
+                app.root.transition.direction = "right"
+                app.root.current = "home"
+
+        Button:
+            text: "No"
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            on_press: root.dismiss()
+
+
+<DelWrkPopup@Popup>:
+    title: "Delete Exercise"
+    size_hint: 0.8, 0.7
+    auto_dismiss: False
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: "Are you sure?"
+            font_size: 55
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
-            text: "(All exercise data will be lost)"
-            font_size: 12
-            italic: True
-            size_hint: 0.7, 0.08
+            text: "(All workout history will be deleted.)"
+            font_size: 35
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
-            text: "Cancel"
+            text: "No"
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
             on_press: root.dismiss()
@@ -135,115 +489,68 @@
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             on_press:
-                root.delete_exercise()
+                root.del_workout()
+                root.dismiss()
                 app.root.transition.direction = "right"
                 app.root.current = "home"
 
 
-<ManageScreen>:
+<PrevPopup@Popup>:
+    title: "Previous Workout"
+    size_hint: 0.8, 0.8
+    auto_dismiss: False
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     FloatLayout:
 
         Label:
-            id: mnglabel
+            id: prev_label
             font_size: 30
             bold: True
-            size_hint: 0.6, 0.2
-            pos_hint: {"center_x": 0.5, "center_y": 0.75}
-
-        Button:
-            text: "Add Set"
-            size_hint: 0.6, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.45}
-            on_press: root.open_addset_screen()
-
-        Button:
-            text: "Delete Set"
-            size_hint: 0.6, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.25}
-            on_press: root.open_delset_screen()
+            size_hint: 0.8, 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
 
         Button:
             text: "Back"
-            size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
-            on_press:
-                root.manager.transition.direction = "right"
-                app.root.current = "choose"
+            size_hint: 0.4, 0.1
+            pos_hint: {"center_x": 0.8, "center_y": 0.1}
+            on_press: root.dismiss()
 
 
-<AddSetScreen>:
+<WarningPopup@Popup>:
+    title: "Exit?"
+    size_hint: 0.8, 0.8
+    auto_dismiss: True
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     FloatLayout:
 
         Label:
-            text: "New Set"
-            font_size: 28
-            bold: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.8}
-
-        TextInput:
-            id: set_date
-            hint_text: "Date (DD.MM.YYYY)"
-            font_size: 17
-            size_hint: 0.7, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.55}
-
-        TextInput:
-            id: set_weight
-            hint_text: "Weight (in KG)"
-            font_size: 17
-            size_hint: 0.7, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.43}
-
-        Button:
-            text: "Done"
-            size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.25}
-            on_press:
-                root.add_set()
-
-        Label:
-            id: addset_feedback
-            font_size: 15
-            size_hint: 0.3, 0.07
-            pos_hint: {"center_x": 0.5, "center_y": 0.15}
-
-        Button:
-            text: "Back"
-            size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
-            on_press:
-                root.manager.transition.direction = "right"
-                app.root.current = "manage"
-
-
-<DelSetScreen>:
-    FloatLayout:
-
-        Spinner:
-            id: delset_spinner
-            text: "Select Set"
-            font_size: 25
+            text: "Exit app?"
+            font_size: 55
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
-            text: "Delete"
-            background_color: 1, 0, 0, 1
-            size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.3}
-            on_press: root.open_popup()
+            text: "No"
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            on_press: root.dismiss()
 
         Button:
-            text: "Back"
-            size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
-            on_press:
-                root.manager.transition.direction = "right"
-                app.root.current = "manage"
-
-<DelSetPopup@PopUp>:
-    title: "Delete Set"
-    size_hint: 0.8, 0.7
-    auto_dismiss: False
-
-    FloatLayout:
+            text: "Yes"
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_press: app.stop()
