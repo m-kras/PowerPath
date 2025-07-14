@@ -12,6 +12,8 @@ import os.path
 from datetime import date
 from datetime import datetime
 
+Window.size = (485, 1000)
+
 
 class HomeScreen(Screen):
     pass

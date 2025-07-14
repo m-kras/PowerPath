@@ -1,5 +1,5 @@
 #:import Factory kivy.factory.Factory
-#:import sp kivy.metrics.sp
+
 
 <Button>:
     font_name: "Parkinsans.ttf"
@@ -37,14 +37,15 @@
 
         Label:
             text: "PowerPath"
-            font_size: 65
+            font_name: "Parkinsans-Bold.ttf"
+            font_size: "45sp"
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Label:
             text: "It's about Progress"
-            font_size: 25
+            font_size: "22sp"
             italic: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.82}
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
             text: "Past Workouts"
@@ -88,49 +89,50 @@
             size_hint_x: None
             height: self.minimum_height
             width: root.width
-            spacing: 25
-            padding: 30
+            spacing: "30sp"
+            padding: "30sp"
 
             Button:
                 text: "Back"
-                size_hint_x: 0.25
+                size_hint_x: 0.3
                 size_hint_y: None
                 pos_hint: {"x": 0.01}
-                height: 65
+                height: "55sp"
+
                 on_press:
                     root.manager.transition.direction = "right"
                     app.root.current = "home"
 
             Label:
                 text: "Past Workouts"
-                font_size: 50
+                font_size: "45sp"
                 size_hint_y: None
 
             Spinner:
                 id: workout_spinner
-                size_hint_x: 0.65
+                size_hint_x: 0.7
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
-                height: 50
+                height: "60sp"
 
             Label:
                 id: feedback_label
-                font_size: 25
+                font_size: "20sp"
                 bold: True
                 size_hint_y: None
-                height: 70
+                height: "50sp"
 
             Button:
                 text: "Show"
                 size_hint_x: 0.5
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
-                height: 80
+                height: "70sp"
                 on_press: root.show_past_workouts()
 
             Label:
                 id: main_label
-                font_size: 16
+                font_size: "20sp"
                 halign: "center"
                 valign: "top"
                 text_size: self.width, None
@@ -152,7 +154,7 @@
 
         Label:
             text: "Manage Workouts"
-            font_size: 60
+            font_size: "37sp"
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
@@ -191,34 +193,44 @@
 
     FloatLayout:
 
+        Label:
+            text: "Add Workout"
+            font_size: "40sp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.93}
+
+        Label:
+            text: "(Blueprint)"
+            font_size: "17sp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.89}
+
         TextInput:
             id: name_input
             hint_text: "Workout Name"
-            font_size: 40
+            font_size: "30sp"
             bold: True
-            size_hint: 0.7, 0.085
-            pos_hint: {"center_x": 0.5, "center_y": 0.8}
+            size_hint: 0.7, 0.065
+            pos_hint: {"center_x": 0.5, "center_y": 0.77}
 
         TextInput:
             id: exercise_input
-            font_size: 40
-            size_hint: 0.7, 0.085
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            font_size: "30sp"
+            size_hint: 0.7, 0.065
+            pos_hint: {"center_x": 0.5, "center_y": 0.62}
 
         Button:
-            text: "Add"
-            size_hint: 0.45, 0.08
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            text: "Add Exercise"
+            size_hint: 0.5, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.45}
             on_press: root.add_exercise()
 
         Label:
             id: feedback_label
-            text: ""
+            font_size: "18sp"
             size_hint: 0.4, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            pos_hint: {"center_x": 0.5, "center_y": 0.38}
 
         Button:
-            text: "Save"
+            text: "Save Workout"
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             background_color: 0, 0.5, 0.7, 1
@@ -245,12 +257,17 @@
 
     FloatLayout:
 
+        Label:
+            text: "Delete Workout"
+            font_size: "40sp"
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
         Spinner:
             id: delwrk_spinner
             text: "Select Workout"
             font_size: 25
             size_hint: 0.7, 0.08
-            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
             text: "Delete"
@@ -281,32 +298,32 @@
 
         Label:
             text: "New Session"
-            font_size: 55
+            font_size: "43sp"
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Spinner:
             id: workout_spinner
             text: "Select Workout"
-            font_size: 40
+            font_size: "27sp"
             size_hint: 0.75, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.73}
 
         Label:
             text: "Date:"
-            font_size: 30
+            font_size: "20sp"
             size_hint: 0.3, 0.08
-            pos_hint: {"center_x": 0.18, "center_y": 0.58}
+            pos_hint: {"center_x": 0.16, "center_y": 0.58}
 
         TextInput:
             id: date_input
-            font_size: 30
-            size_hint: 0.5, 0.05
+            font_size: "20sp"
+            size_hint: 0.5, 0.045
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
 
         Button:
             text: "Start Session"
-            font_size: 35
-            size_hint: 0.5, 0.15
+            font_size: "20sp"
+            size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
@@ -314,6 +331,7 @@
 
         Label:
             id: feedback_label
+            font_size: "17sp"
             size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.25}
             bold: True
@@ -339,13 +357,13 @@
 
         Label:
             id: date_label
-            font_size: 25
+            font_size: "14sp"
             bold: True
             pos_hint: {"center_x": 0.88, "center_y": 0.98}
 
         Button:
             text: "Previous Workout"
-            font_size: 25
+            font_size: "13sp"
             italic: True
             size_hint: 0.25, 0.05
             pos_hint: {"center_x": 0.14, "center_y": 0.96}
@@ -353,53 +371,55 @@
 
         Label:
             id: workout_label
-            font_size: 60
+            font_size: "50sp"
             bold: True
             size_hint: 0.75, 0.15
             pos_hint: {"center_x": 0.5, "center_y": 0.87}
 
         Label:
             id: exerset_label
-            font_size: 50
+            font_size: "30sp"
             size_hint: 0.7, 0.15
             pos_hint: {"center_x": 0.5, "center_y": 0.79}
         
         TextInput:
             id: weight_input
             hint_text: "Weight in KG"
-            font_size: 35
+            font_size: "23sp"
             size_hint: 0.65, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.65}
 
         TextInput:
             id: reps_input
             hint_text: "Reps"
-            font_size: 35
+            font_size: "23sp"
             size_hint: 0.65, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.55}
 
         Label:
             id: feedback_label
+            font_size: "17sp"
             size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             bold: True
 
         Button:
             text: "Add Set"
-            font_size: 40
+            font_size: "24sp"
             size_hint: 0.35, 0.08
             pos_hint: {"center_x": 0.25, "center_y": 0.4}
             on_press: root.add_set()
 
         Button:
             text: "Next Exercise"
-            font_size: 40
+            font_size: "24sp"
             size_hint: 0.35, 0.08
             pos_hint: {"center_x": 0.75, "center_y": 0.4}
             on_press: root.next_exercise()
 
         Button:
             text: "SAVE"
+            font_size: "33sp"
             size_hint: 0.55, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.22}
             background_color: 0, 0.5, 0.7, 1
@@ -429,12 +449,12 @@
 
         Label:
             text: "Are you sure?"
-            font_size: 50
+            font_size: "35sp"
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
             text: "(Input will not be saved.)"
-            font_size: 30
+            font_size: "18sp"
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
@@ -469,13 +489,13 @@
 
         Label:
             text: "Are you sure?"
-            font_size: 55
+            font_size: "35sp"
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
             text: "(All workout history will be deleted.)"
-            font_size: 35
+            font_size: "16sp"
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
@@ -511,7 +531,7 @@
 
         Label:
             id: prev_label
-            font_size: 30
+            font_size: "21sp"
             bold: True
             size_hint: 0.8, 0.8
             pos_hint: {"center_x": 0.5, "center_y": 0.6}
@@ -539,7 +559,7 @@
 
         Label:
             text: "Exit app?"
-            font_size: 55
+            font_size: "35sp"
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
