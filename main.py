@@ -11,8 +11,7 @@ import csv
 import os.path
 from datetime import date
 from datetime import datetime
-
-Window.size = (485, 1000)
+from pathlib import Path
 
 
 class HomeScreen(Screen):
@@ -35,10 +34,12 @@ class PastScreen(Screen):
         self.ids.feedback_label.text = "" # clear feedback_label
 
     def show_past_workouts(self):
+        app = App.get_running_app() # for get_data_path
+
         self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
 
         if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
-            with open(f"data/{self.ids.workout_spinner.text}.csv", "r") as file:  # open csv in reading mode
+            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:  # open csv in reading mode
                 dictreader = csv.DictReader(file, delimiter=";")
 
                 workout_history = "" # string for entire workout history
@@ -122,22 +123,24 @@ class AddWrkScreen(Screen):
 
     # save the workout
     def save_workout(self):
+        app = App.get_running_app() # for get_data_path
+
         name = self.ids.name_input.text # get workout name
 
         # creation of {workout name}.csv
         if len(self.added_exercises) > 0: # exercises must have been added
             if name != "": # workout must have a name
-                if os.path.isfile(f"data/{name.strip()}.csv") is False: # check whether workout already exists
+                if os.path.isfile(app.get_data_path(f"{name.strip()}.csv")) is False: # check whether workout already exists
 
                     self.added_exercises.insert(0, "Date") # header: Date, Ex1, Ex2, ...
 
                     # create workout-specific csv file
-                    with open(f"data/{name}.csv", "w", newline="") as file:
+                    with open(app.get_data_path(f"{name}.csv"), "w", newline="") as file:
                         writer = csv.DictWriter(file, fieldnames=self.added_exercises, delimiter=";") # init dictwriter
                         writer.writeheader() # write header
 
                     # adding name to all_workouts.csv
-                    with open("data/all_workouts.csv", "a", newline="") as file:
+                    with open(app.get_data_path("all_workouts.csv"), "a", newline="") as file:
                         writer = csv.writer(file)
                         writer.writerow([name]) # add name
 
@@ -187,21 +190,26 @@ class DelWrkScreen(Screen):
 
     # open popup if deletion button pressed
     def open_popup(self):
-        popup = DelWrkPopup()
-
-        popup.workout_list = self.workout_list # pass on workout_list
-        popup.workout = self.ids.delwrk_spinner.text  # pass on the chosen exercise
-        if popup.workout != "Select Workout": # must be selected
+        if self.ids.delwrk_spinner.text != "Select Workout": # must be selected
+            popup = DelWrkPopup()
+            popup.workout_list = self.workout_list # pass on workout_list
+            popup.workout = self.ids.delwrk_spinner.text  # pass on the chosen exercise
             popup.open()  # open popup
+
+        else: # if no workout selected
+            self.ids.feedback_label.text = "No workout selected." # negative feedback
+            self.ids.feedback_label.color = 1, 0, 0, 1 # red
 
 
 class DelWrkPopup(Popup):
     # deleting the selected workout
     def del_workout(self):
-        os.remove(f"data/{self.workout}.csv") # delete workout-specific file
+        app = App.get_running_app()  # for get_data_path
+
+        os.remove(app.get_data_path(f"{self.workout}.csv")) # delete workout-specific file
 
         self.workout_list.remove(self.workout) # remove workout name from workout_list
-        with open("data/all_workouts.csv", "w", newline="") as file: # open in writing mode to overwrite
+        with open(app.get_data_path("all_workouts.csv"), "w", newline="") as file: # open in writing mode to overwrite
             writer = csv.writer(file)
             writer.writerow(["Workouts"]) # write header
             for obj in self.workout_list:
@@ -255,6 +263,8 @@ class StartSessionScreen(Screen):
 
 class SessionScreen(Screen):
     def on_pre_enter(self, *args):
+        app = App.get_running_app()  # for get_data_path
+
         # get data from prev. screen
         self.current_workout = App.get_running_app().custom_var[0] # get current workout
         self.current_date = App.get_running_app().custom_var[1] # get current date
@@ -263,7 +273,7 @@ class SessionScreen(Screen):
         self.exer_list = [] # list to store exercises (from csv header)
         self.prev_workouts = [] # list of dicts (!) to store the previous workouts
 
-        with open(f"data/{self.current_workout}.csv", "r") as file: # open csv in reading mode
+        with open(app.get_data_path(f"{self.current_workout}.csv"), "r") as file: # open csv in reading mode
             dictreader = csv.DictReader(file, delimiter=";")
 
             for obj in dictreader.fieldnames: # for every header object
@@ -371,14 +381,16 @@ class SessionScreen(Screen):
             self.current_exercise_sets = [] # reset list with current sets
 
     def save_session(self):
+        app = App.get_running_app()  # for get_data_path
+
         self.sets_to_dict() # write last sets into dict
 
         if self.workout_dict != {"Date": self.current_date}: # sets must have been added
-            with open(f"data/{self.current_workout}.csv", "r", newline="") as file: # open in read mode
+            with open(app.get_data_path(f"{self.current_workout}.csv"), "r", newline="") as file: # open in read mode
                 dictreader = csv.DictReader(file, delimiter=";") # init reader to get fieldnames
                 fieldnames = dictreader.fieldnames # get fieldnames of csv
 
-            with open(f"data/{self.current_workout}.csv", "a", newline="") as file: # open in append mode
+            with open(app.get_data_path(f"{self.current_workout}.csv"), "a", newline="") as file: # open in append mode
                 dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames) # init dictwriter
                 dictwriter.writerow(self.workout_dict) # write values of dict into csv file
 
@@ -430,12 +442,19 @@ class Powerpath(App):
         sm.add_widget(SessionScreen(name="session"))
 
         # create .csv to save all the workouts (upon first app launch)
-        if os.path.isfile("data/all_workouts.csv") is False:
-            with open("data/all_workouts.csv", "a", newline="") as file: # creation of all_workouts.csv
+        if not self.get_data_path("all_workouts.csv").is_file():
+            with open(self.get_data_path("all_workouts.csv"), "a", newline="") as file: # creation of all_workouts.csv
                 writer = csv.writer(file)
                 writer.writerow(["Workouts"]) # write header
 
         return sm # start the app (screenmanager as the main widget)
+
+    # return path where a file should be stored (for csv's)
+    def get_data_path(self, filename):
+        data_dir = Path(self.user_data_dir) # create Path object (directory will persist during updates)
+        data_dir.mkdir(parents=True, exist_ok=True) # check if directory exists, if not then create it
+
+        return data_dir / filename # combine safe directory with file name
 
     def check_pressed_button(self, window, key, *args):
         if key == 27: # 27 == android back button
@@ -453,7 +472,7 @@ class Powerpath(App):
 
         self.workout_list = []
 
-        with open("data/all_workouts.csv", "r") as file:  # opening in reading mode
+        with open(self.get_data_path("all_workouts.csv"), "r") as file:  # opening in reading mode
             reader = csv.reader(file)
             next(reader)  # skip header ("Workouts")
             for line in reader:  # csv_reader = list of lists
