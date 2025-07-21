@@ -36,32 +36,32 @@
 
     FloatLayout:
 
+        Button:
+            text: "How to..."
+            font_size: root.width * 0.02
+            size_hint: 0.17, 0.05
+            pos_hint: {"center_x": 0.9, "center_y": 0.96}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "howto"
+
         Label:
             text: "PowerPath"
             font_name: "data/Parkinsans-Bold.ttf"
             font_size: root.width * 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.92}
+            pos_hint: {"center_x": 0.5, "center_y": 0.89}
 
         Label:
             text: "It's about Progress"
             font_size: root.width * 0.04
             italic: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.85}
-
-        Button:
-            text: "Past Workouts"
-            font_size: root.width * 0.04
-            size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
-            on_press:
-                root.manager.transition.direction = "left"
-                app.root.current = "past"
+            pos_hint: {"center_x": 0.5, "center_y": 0.82}
 
         Button:
             text: "Manage Workouts"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            pos_hint: {"center_x": 0.5, "center_y": 0.57}
             on_press:
                 root.manager.transition.direction = "left"
                 app.root.current = "manage"
@@ -70,11 +70,96 @@
             text: "New Session"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            pos_hint: {"center_x": 0.5, "center_y": 0.37}
             on_press:
                 root.manager.transition.direction = "left"
                 app.root.current = "startsession"
 
+        Button:
+            text: "Past Workouts"
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.17}
+            on_press:
+                root.manager.transition.direction = "left"
+                app.root.current = "past"
+
+
+<HowToScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        BoxLayout:
+
+            orientation: "vertical"
+            size_hint_y: None
+            size_hint_x: None
+            height: self.minimum_height
+            width: root.width
+            spacing: "45sp"
+            padding: "30sp"
+
+            Button:
+                text: "Back"
+                font_size: root.width * 0.03
+                size_hint_x: 0.3
+                size_hint_y: None
+                pos_hint: {"x": 0.01}
+                height: "45sp"
+                on_press:
+                    root.manager.transition.direction = "right"
+                    app.root.current = "home"
+
+            Label:
+                text: "How to..."
+                font_size: root.width * 0.07
+                size_hint_y: None
+
+            Label:
+                text: "-> Add a new workout plan:\n    1. Go to: 'Manage Workouts' > 'Add Workout'\n    2. Enter a workout name and your exercises\n    3. Save"
+                font_size: root.width * 0.03
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+            Label:
+                text: "-> Start a new session:\n    1. Go to: 'New Session'\n    2. Select one of your saved workouts\n    3. Change the date if needed\n    4. Start\n    5. You can now enter the weight + reps for every set"
+                font_size: root.width * 0.03
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+            Label:
+                text: "Note: You can delete your plans under 'Delete Workout'"
+                font_size: root.width * 0.02
+                text_size: self.width, None
+                halign: "center"
+                valign: "top"
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+            Label:
+                text: "-> Check your progress:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press ’Show'"
+                font_size: root.width * 0.03
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
 
 <PastScreen>:
 
@@ -164,7 +249,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
-            text: "Add Workout"
+            text: "Add Workout Plan"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
@@ -203,14 +288,9 @@
     FloatLayout:
 
         Label:
-            text: "Add Workout"
+            text: "Add Workout Plan"
             font_size: root.width * 0.07
-            pos_hint: {"center_x": 0.5, "center_y": 0.93}
-
-        Label:
-            text: "(Blueprint)"
-            font_size: root.width * 0.035
-            pos_hint: {"center_x": 0.5, "center_y": 0.86}
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         TextInput:
             id: name_input

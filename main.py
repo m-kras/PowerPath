@@ -18,202 +18,12 @@ class HomeScreen(Screen):
     pass
 
 
-class ManageScreen(Screen):
+class HowToScreen(Screen):
     pass
 
 
-class PastScreen(Screen):
-    def on_pre_enter(self, *args):
-        # update spinner
-        app = App.get_running_app()
-        workout_list = app.get_workouts()  # list with all the currently saved workouts
-        self.ids.workout_spinner.values = workout_list  # update spinner values on every re-entry
-        self.ids.workout_spinner.text = "Select Workout"  # reset spinner text
-
-        self.ids.main_label.text = "" # clear main_label
-        self.ids.feedback_label.text = "" # clear feedback_label
-
-    def show_past_workouts(self):
-        app = App.get_running_app() # for get_data_path
-
-        self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
-
-        if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
-            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:  # open csv in reading mode
-                dictreader = csv.DictReader(file, delimiter=";")
-
-                workout_history = "" # string for entire workout history
-
-                for obj in dictreader: # for each dictionary
-
-                    workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
-
-                    for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
-                        if value != "":  # if there is a value to the key
-                            workout_history = f"{workout_history}{key}: "  # first part of addition
-
-                            value = eval(value)  # convert str rep. of list into actual list
-
-                            for i in value:  # for every set of an exercise
-                                workout_history = f"{workout_history}\n({i[0]} KG, {i[1]} Reps)"  # second part of addition
-
-                        workout_history = f"{workout_history}\n\n"  # add empty line to next exercise
-
-                self.ids.main_label.text = workout_history # set label text to workout_history string
-
-        else: # no workout selected
-            self.ids.feedback_label.text = "Please select a Workout." # negative feedback
-            self.ids.feedback_label.color = 1, 0, 0, 1 # red
-
-
-class AddWrkScreen(Screen):
-
-    def on_pre_enter(self, *args):
-        self.added_exercises = [] # list to save all the added exercises for one workout
-        self.ids.exercise_input.hint_text = "Exercise 1" # reset hint_text
-        self.ids.name_input.text = "" # reset name text
-        self.ids.feedback_label.text = "" # hide feedback
-
-    # add exercise to the workout
-    def add_exercise(self):
-        exercise = self.ids.exercise_input.text.strip() # get exercise input
-
-        # valid input
-        if (exercise.replace("(", "").replace(")", "").replace("-", "")
-                    .replace(" ", "").replace(".", "")
-                    .isalnum() is True) and (exercise not in self.added_exercises):
-            self.added_exercises.append(exercise) # add to list
-
-            # configure positive feedback
-            self.ids.feedback_label.text = "Exercise added!" # update text
-            self.ids.feedback_label.color = 0, 1, 0, 1 # green
-            self.ids.feedback_label.bold = True # make text bold
-
-            # update exercise_input's hint_text
-            exercise_nr = int(self.ids.exercise_input.hint_text[-1]) # nr = last character of hint_text
-            self.ids.exercise_input.hint_text = f"Exercise {exercise_nr + 1}" # new hint_text (e.g. Exercise 1 -> 2)
-            self.ids.exercise_input.text = "" # clear text
-
-        # empty input
-        elif exercise == "":
-            # configure negative feedback
-            self.ids.feedback_label.text = "Please pass in an exercise."  # update text
-            self.ids.feedback_label.color = 1, 0, 0, 1  # red
-            self.ids.feedback_label.bold = True  # make text bold
-
-            self.ids.exercise_input.text = ""  # clear text
-
-        # exercise already added
-        elif exercise in self.added_exercises:
-            # configure negative feedback
-            self.ids.feedback_label.text = "Exercise has already been added."  # update text
-            self.ids.feedback_label.color = 1, 0, 0, 1  # red
-            self.ids.feedback_label.bold = True  # make text bold
-
-            self.ids.exercise_input.text = ""  # clear text
-
-        # incorrect syntax
-        else:
-            # configure negative feedback
-            self.ids.feedback_label.text = "Allowed characters: a-z, 0-9, (), -, ., Space"  # update text
-            self.ids.feedback_label.color = 1, 0, 0, 1  # green
-            self.ids.feedback_label.bold = True  # make text bold
-
-            self.ids.exercise_input.text = "" # clear text
-
-    # save the workout
-    def save_workout(self):
-        app = App.get_running_app() # for get_data_path
-
-        name = self.ids.name_input.text # get workout name
-
-        # creation of {workout name}.csv
-        if len(self.added_exercises) > 0: # exercises must have been added
-            if name != "": # workout must have a name
-                if os.path.isfile(app.get_data_path(f"{name.strip()}.csv")) is False: # check whether workout already exists
-
-                    self.added_exercises.insert(0, "Date") # header: Date, Ex1, Ex2, ...
-
-                    # create workout-specific csv file
-                    with open(app.get_data_path(f"{name}.csv"), "w", newline="") as file:
-                        writer = csv.DictWriter(file, fieldnames=self.added_exercises, delimiter=";") # init dictwriter
-                        writer.writeheader() # write header
-
-                    # adding name to all_workouts.csv
-                    with open(app.get_data_path("all_workouts.csv"), "a", newline="") as file:
-                        writer = csv.writer(file)
-                        writer.writerow([name]) # add name
-
-                    # return to home screen
-                    self.manager.transition.direction = "right"
-                    self.manager.current = "home"
-
-                # workout name already used
-                else:
-                    # configure negative feedback
-                    self.ids.feedback_label.text = "Workout name already used."  # update text
-                    self.ids.feedback_label.color = 1, 0, 0, 1  # red
-                    self.ids.feedback_label.bold = True  # make text bold
-
-            # workout not named
-            else:
-                # configure negative feedback
-                self.ids.feedback_label.text = "Please add a name."  # update text
-                self.ids.feedback_label.color = 1, 0, 0, 1  # red
-                self.ids.feedback_label.bold = True  # make text bold
-
-        # exercise list empty
-        else:
-            # configure negative feedback
-            self.ids.feedback_label.text = "No Exercises added."  # update text
-            self.ids.feedback_label.color = 1, 0, 0, 1  # red
-            self.ids.feedback_label.bold = True  # make text bold
-
-    # cancel button pressed
-    def open_popup(self):
-        if self.added_exercises != []: # open popup only if exercises added
-            popup = CancelPopup()
-            popup.open()
-
-        else: # no exercises added => no popup necessary
-            self.manager.transition.direction = "right"
-            self.manager.current = "manage"
-
-
-class DelWrkScreen(Screen):
-    def on_pre_enter(self):
-        app = App.get_running_app()
-        self.workout_list = app.get_workouts()  # list with all the currently saved workouts
-
-        self.ids.delwrk_spinner.values = self.workout_list  # update spinner values on every re-entry
-        self.ids.delwrk_spinner.text = "Select Workout" # reset spinner text
-
-    # open popup if deletion button pressed
-    def open_popup(self):
-        if self.ids.delwrk_spinner.text != "Select Workout": # must be selected
-            popup = DelWrkPopup()
-            popup.workout_list = self.workout_list # pass on workout_list
-            popup.workout = self.ids.delwrk_spinner.text  # pass on the chosen exercise
-            popup.open()  # open popup
-
-        else: # if no workout selected
-            self.ids.feedback_label.text = "No workout selected." # negative feedback
-            self.ids.feedback_label.color = 1, 0, 0, 1 # red
-
-
-class DelWrkPopup(Popup):
-    # deleting the selected workout
-    def del_workout(self):
-        app = App.get_running_app()  # for get_data_path
-
-        os.remove(app.get_data_path(f"{self.workout}.csv")) # delete workout-specific file
-
-        self.workout_list.remove(self.workout) # remove workout name from workout_list
-        with open(app.get_data_path("all_workouts.csv"), "w", newline="") as file: # open in writing mode to overwrite
-            writer = csv.writer(file)
-            writer.writerow(["Workouts"]) # write header
-            for obj in self.workout_list:
-                writer.writerow([obj]) # add every remaining workout
+class ManageScreen(Screen):
+    pass
 
 
 class StartSessionScreen(Screen):
@@ -410,6 +220,200 @@ class SessionScreen(Screen):
         popup.open()
 
 
+class PastScreen(Screen):
+    def on_pre_enter(self, *args):
+        # update spinner
+        app = App.get_running_app()
+        workout_list = app.get_workouts()  # list with all the currently saved workouts
+        self.ids.workout_spinner.values = workout_list  # update spinner values on every re-entry
+        self.ids.workout_spinner.text = "Select Workout"  # reset spinner text
+
+        self.ids.main_label.text = "" # clear main_label
+        self.ids.feedback_label.text = "" # clear feedback_label
+
+    def show_past_workouts(self):
+        app = App.get_running_app() # for get_data_path
+
+        self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
+
+        if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
+            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:  # open csv in reading mode
+                dictreader = csv.DictReader(file, delimiter=";")
+
+                workout_history = "" # string for entire workout history
+
+                for obj in dictreader: # for each dictionary
+
+                    workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
+
+                    for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
+                        if value != "":  # if there is a value to the key
+                            workout_history = f"{workout_history}{key}: "  # first part of addition
+
+                            value = eval(value)  # convert str rep. of list into actual list
+
+                            for i in value:  # for every set of an exercise
+                                workout_history = f"{workout_history}\n({i[0]} KG, {i[1]} Reps)"  # second part of addition
+
+                        workout_history = f"{workout_history}\n\n"  # add empty line to next exercise
+
+                self.ids.main_label.text = workout_history # set label text to workout_history string
+
+        else: # no workout selected
+            self.ids.feedback_label.text = "Please select a Workout." # negative feedback
+            self.ids.feedback_label.color = 1, 0, 0, 1 # red
+
+
+class AddWrkScreen(Screen):
+
+    def on_pre_enter(self, *args):
+        self.added_exercises = [] # list to save all the added exercises for one workout
+        self.ids.exercise_input.hint_text = "Exercise 1" # reset hint_text
+        self.ids.name_input.text = "" # reset name text
+        self.ids.feedback_label.text = "" # hide feedback
+
+    # add exercise to the workout
+    def add_exercise(self):
+        exercise = self.ids.exercise_input.text.strip() # get exercise input
+
+        # valid input
+        if (exercise.replace("(", "").replace(")", "").replace("-", "")
+                    .replace(" ", "").replace(".", "")
+                    .isalnum() is True) and (exercise not in self.added_exercises):
+            self.added_exercises.append(exercise) # add to list
+
+            # configure positive feedback
+            self.ids.feedback_label.text = "Exercise added!" # update text
+            self.ids.feedback_label.color = 0, 1, 0, 1 # green
+            self.ids.feedback_label.bold = True # make text bold
+
+            # update exercise_input's hint_text
+            exercise_nr = int(self.ids.exercise_input.hint_text[-1]) # nr = last character of hint_text
+            self.ids.exercise_input.hint_text = f"Exercise {exercise_nr + 1}" # new hint_text (e.g. Exercise 1 -> 2)
+            self.ids.exercise_input.text = "" # clear text
+
+        # empty input
+        elif exercise == "":
+            # configure negative feedback
+            self.ids.feedback_label.text = "Please pass in an exercise."  # update text
+            self.ids.feedback_label.color = 1, 0, 0, 1  # red
+            self.ids.feedback_label.bold = True  # make text bold
+
+            self.ids.exercise_input.text = ""  # clear text
+
+        # exercise already added
+        elif exercise in self.added_exercises:
+            # configure negative feedback
+            self.ids.feedback_label.text = "Exercise has already been added."  # update text
+            self.ids.feedback_label.color = 1, 0, 0, 1  # red
+            self.ids.feedback_label.bold = True  # make text bold
+
+            self.ids.exercise_input.text = ""  # clear text
+
+        # incorrect syntax
+        else:
+            # configure negative feedback
+            self.ids.feedback_label.text = "Allowed characters: a-z, 0-9, (), -, ., Space"  # update text
+            self.ids.feedback_label.color = 1, 0, 0, 1  # green
+            self.ids.feedback_label.bold = True  # make text bold
+
+            self.ids.exercise_input.text = "" # clear text
+
+    # save the workout
+    def save_workout(self):
+        app = App.get_running_app() # for get_data_path
+
+        name = self.ids.name_input.text # get workout name
+
+        # creation of {workout name}.csv
+        if len(self.added_exercises) > 0: # exercises must have been added
+            if name != "": # workout must have a name
+                if os.path.isfile(app.get_data_path(f"{name.strip()}.csv")) is False: # check whether workout already exists
+
+                    self.added_exercises.insert(0, "Date") # header: Date, Ex1, Ex2, ...
+
+                    # create workout-specific csv file
+                    with open(app.get_data_path(f"{name}.csv"), "w", newline="") as file:
+                        writer = csv.DictWriter(file, fieldnames=self.added_exercises, delimiter=";") # init dictwriter
+                        writer.writeheader() # write header
+
+                    # adding name to all_workouts.csv
+                    with open(app.get_data_path("all_workouts.csv"), "a", newline="") as file:
+                        writer = csv.writer(file)
+                        writer.writerow([name]) # add name
+
+                    # return to home screen
+                    self.manager.transition.direction = "right"
+                    self.manager.current = "home"
+
+                # workout name already used
+                else:
+                    # configure negative feedback
+                    self.ids.feedback_label.text = "Workout name already used."  # update text
+                    self.ids.feedback_label.color = 1, 0, 0, 1  # red
+                    self.ids.feedback_label.bold = True  # make text bold
+
+            # workout not named
+            else:
+                # configure negative feedback
+                self.ids.feedback_label.text = "Please add a name."  # update text
+                self.ids.feedback_label.color = 1, 0, 0, 1  # red
+                self.ids.feedback_label.bold = True  # make text bold
+
+        # exercise list empty
+        else:
+            # configure negative feedback
+            self.ids.feedback_label.text = "No Exercises added."  # update text
+            self.ids.feedback_label.color = 1, 0, 0, 1  # red
+            self.ids.feedback_label.bold = True  # make text bold
+
+    # cancel button pressed
+    def open_popup(self):
+        if self.added_exercises != []: # open popup only if exercises added
+            popup = CancelPopup()
+            popup.open()
+
+        else: # no exercises added => no popup necessary
+            self.manager.transition.direction = "right"
+            self.manager.current = "manage"
+
+
+class DelWrkScreen(Screen):
+    def on_pre_enter(self):
+        app = App.get_running_app()
+        self.workout_list = app.get_workouts()  # list with all the currently saved workouts
+
+        self.ids.delwrk_spinner.values = self.workout_list  # update spinner values on every re-entry
+        self.ids.delwrk_spinner.text = "Select Workout" # reset spinner text
+
+    # open popup if deletion button pressed
+    def open_popup(self):
+        if self.ids.delwrk_spinner.text != "Select Workout": # must be selected
+            popup = DelWrkPopup()
+            popup.workout_list = self.workout_list # pass on workout_list
+            popup.workout = self.ids.delwrk_spinner.text  # pass on the chosen exercise
+            popup.open()  # open popup
+
+        else: # if no workout selected
+            self.ids.feedback_label.text = "No workout selected." # negative feedback
+            self.ids.feedback_label.color = 1, 0, 0, 1 # red
+
+
+class DelWrkPopup(Popup):
+    # deleting the selected workout
+    def del_workout(self):
+        app = App.get_running_app()  # for get_data_path
+
+        os.remove(app.get_data_path(f"{self.workout}.csv")) # delete workout-specific file
+
+        self.workout_list.remove(self.workout) # remove workout name from workout_list
+        with open(app.get_data_path("all_workouts.csv"), "w", newline="") as file: # open in writing mode to overwrite
+            writer = csv.writer(file)
+            writer.writerow(["Workouts"]) # write header
+            for obj in self.workout_list:
+                writer.writerow([obj]) # add every remaining workout
+
+
 class PrevPopup(Popup):
     pass
 
@@ -417,8 +421,10 @@ class PrevPopup(Popup):
 class CancelPopup(Popup):
     pass
 
+
 class WarningPopup(Popup):
     pass
+
 
 class MyScreenManager(ScreenManager):
     pass
@@ -434,6 +440,7 @@ class Powerpath(App):
         # initializing screen manager that contains all windows
         sm = MyScreenManager()
         sm.add_widget(HomeScreen(name="home"))
+        sm.add_widget(HowToScreen(name="howto"))
         sm.add_widget(PastScreen(name="past"))
         sm.add_widget(ManageScreen(name="manage"))
         sm.add_widget(AddWrkScreen(name="addwrk"))
