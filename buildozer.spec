@@ -35,6 +35,8 @@ source.include_exts = py,png,jpg,kv,csv,ttf
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
+android.version_code = 102110001
+
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
 requirements = python3,kivy,jnius,pyjnius
