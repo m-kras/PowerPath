@@ -132,7 +132,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Start a new session:\n    1. Go to: 'New Session'\n    2. Select one of your saved workouts\n    3. Change the date if needed\n    4. Start\n    5. You can now enter the weight + reps for every set"
+                text: "-> Start a new session:\n    1. Go to: 'New Session'\n    2. Select one of your saved workouts\n    3. Change the date if needed\n    4. Start\n    5. Enter weight + reps for every set\n    6. Add a workout comment if needed and save"
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -471,52 +471,54 @@
             on_press: root.open_prev_popup()
 
         Label:
-            id: workout_label
-            font_size: root.width * 0.06
-            bold: True
-            size_hint: 0.75, 0.15
-            pos_hint: {"center_x": 0.5, "center_y": 0.87}
-
-        Label:
             id: exerset_label
-            font_size: root.width * 0.04
+            font_size: root.width * 0.05
+            font_name: "data/Parkinsans-Bold.ttf"
             size_hint: 0.7, 0.15
-            pos_hint: {"center_x": 0.5, "center_y": 0.79}
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         TextInput:
             id: weight_input
             hint_text: "Weight in KG"
             font_size: root.width * 0.04
             size_hint: 0.65, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.65}
+            pos_hint: {"center_x": 0.5, "center_y": 0.78}
 
         TextInput:
             id: reps_input
             hint_text: "Reps"
             font_size: root.width * 0.04
             size_hint: 0.65, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+            pos_hint: {"center_x": 0.5, "center_y": 0.68}
 
         Label:
             id: feedback_label
             font_size: root.width * 0.03
             size_hint: 0.4, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
             bold: True
 
         Button:
             text: "Add Set"
-            font_size: root.width * 0.04
-            size_hint: 0.35, 0.08
-            pos_hint: {"center_x": 0.25, "center_y": 0.4}
+            font_size: root.width * 0.032
+            size_hint: 0.3, 0.1
+            pos_hint: {"center_x": 0.25, "center_y": 0.49}
             on_press: root.add_set()
 
         Button:
             text: "Next Exercise"
-            font_size: root.width * 0.04
-            size_hint: 0.35, 0.08
-            pos_hint: {"center_x": 0.75, "center_y": 0.4}
+            font_size: root.width * 0.032
+            size_hint: 0.3, 0.1
+            pos_hint: {"center_x": 0.75, "center_y": 0.49}
             on_press: root.next_exercise()
+
+        TextInput:
+            id: comment_input
+            hint_text: "Workout Comment"
+            font_name: "data/Montserrat-MediumItalic.ttf"
+            font_size: root.width * 0.03
+            size_hint: 0.5, 0.04
+            pos_hint: {"center_x": 0.5, "center_y": 0.35}
 
         Button:
             text: "SAVE"
