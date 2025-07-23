@@ -1,4 +1,4 @@
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 
 # imports
 from kivy.app import App
@@ -12,7 +12,6 @@ from datetime import date
 from datetime import datetime
 from pathlib import Path
 
-Window.size = (700, 1050)
 
 class HomeScreen(Screen):
     pass

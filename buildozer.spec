@@ -35,7 +35,7 @@ source.include_exts = py,png,jpg,kv,csv,ttf
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
-android.version_code = 102110003
+android.version_code = 102110004
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
@@ -107,7 +107,7 @@ fullscreen = 0
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 34
+android.api = 35
 
 # (int) Minimum API your APK / AAB will support.
 android.minapi = 21
