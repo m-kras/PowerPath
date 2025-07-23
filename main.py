@@ -383,13 +383,13 @@ class PastScreen(Screen):
 
                 workout_history = "" # string for entire workout history
 
-                for obj in dictreader: # for each dictionary
+                for obj in dictreader: # for each dictionary (a dict is a workout)
 
                     workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
 
                     for key, value in list(obj.items())[1:-1]:  # iterating over a list of tuples, each containing a key and value
                         if value != "":  # if there is a value to the key
-                            workout_history = f"{workout_history}{key}: "  # first part of addition
+                            workout_history = f"{workout_history}\n{key}: "  # first part of addition
 
                             value = eval(value)  # convert str rep. of list into actual list
 
@@ -399,7 +399,7 @@ class PastScreen(Screen):
                     if obj["Comment"] != "": # if the user wrote a comment for this workout
                         workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
 
-                        workout_history = f"{workout_history}\n\n"  # add empty line to next exercise
+                        workout_history = f"{workout_history}\n\n"  # add empty line to next workout
 
                 self.ids.main_label.text = workout_history # set label text to workout_history string
 
