@@ -40,7 +40,7 @@
             text: "How to..."
             font_size: root.width * 0.02
             size_hint: 0.17, 0.05
-            pos_hint: {"center_x": 0.9, "center_y": 0.96}
+            pos_hint: {"center_x": 0.9, "center_y": 0.94}
             on_press:
                 root.manager.transition.direction = "left"
                 app.root.current = "howto"
@@ -49,13 +49,13 @@
             text: "PowerPath"
             font_name: "data/Parkinsans-Bold.ttf"
             font_size: root.width * 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.89}
+            pos_hint: {"center_x": 0.5, "center_y": 0.86}
 
         Label:
             text: "It's about Progress"
             font_size: root.width * 0.04
             italic: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.82}
+            pos_hint: {"center_x": 0.5, "center_y": 0.78}
 
         Button:
             text: "Manage Workouts"
@@ -252,7 +252,7 @@
             text: "Add Workout Plan"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            pos_hint: {"center_x": 0.5, "center_y": 0.55}
             on_press:
                 root.manager.transition.direction = "left"
                 app.root.current = "addwrk"
@@ -261,7 +261,7 @@
             text: "Delete Workout"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            pos_hint: {"center_x": 0.5, "center_y": 0.35}
             on_press:
                 root.manager.transition.direction = "left"
                 app.root.current = "delwrk"
@@ -270,7 +270,7 @@
             text: "Back"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
+            pos_hint: {"x": 0.65, "y": 0.07}
             on_press:
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
@@ -333,7 +333,7 @@
             text: "Cancel"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
+            pos_hint: {"x": 0.65, "y": 0.07}
             on_press:
                 root.open_popup()
 
@@ -380,7 +380,7 @@
             text: "Back"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
+            pos_hint: {"x": 0.65, "y": 0.07}
             on_press:
                 root.manager.transition.direction = "right"
                 app.root.current = "manage"
@@ -440,7 +440,7 @@
             text: "Back"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
+            pos_hint: {"x": 0.65, "y": 0.07}
             on_press:
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
@@ -467,7 +467,7 @@
             font_size: root.width * 0.02
             italic: True
             size_hint: 0.25, 0.05
-            pos_hint: {"center_x": 0.14, "center_y": 0.96}
+            pos_hint: {"center_x": 0.14, "center_y": 0.94}
             on_press: root.open_prev_popup()
 
         Label:
@@ -533,7 +533,7 @@
             text: "Cancel"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
-            pos_hint: {"x": 0.65, "y": 0.05}
+            pos_hint: {"x": 0.65, "y": 0.07}
             on_press: Factory.CancelPopup().open()
 
 
@@ -639,8 +639,10 @@
 
         Label:
             id: prev_label
-            font_size: root.width * 0.04
+            font_size: root.width * 0.03
+            text_size: self.width, None
             bold: True
+            height: self.texture_size[1]
             size_hint: 0.8, 0.8
             pos_hint: {"center_x": 0.5, "center_y": 0.6}
 

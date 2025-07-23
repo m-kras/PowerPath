@@ -1,4 +1,4 @@
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 
 # imports
 from kivy.app import App
@@ -262,7 +262,7 @@ class SessionScreen(Screen):
             workout_str = f"Previous: {prev_workout['Date']}\n"  # start of workout_str
 
             for key, value in list(prev_workout.items())[
-                              1:]:  # iterating over a list of tuples, each containing a key and value
+                              1:-1]:  # iterating over a list of tuples, each containing a key and value
                 if value != "":  # if there is a value to the key
                     workout_str = f"{workout_str}{key}: "  # first part of addition
 
@@ -271,7 +271,11 @@ class SessionScreen(Screen):
                     for obj in value:  # for every set of an exercise
                         workout_str = f"{workout_str}\n({obj[0]} KG, {obj[1]} Reps)"  # second part of addition
 
-                workout_str = f"{workout_str}\n"  # add new line
+                workout_str = f"{workout_str}\n"  # add new line before next exercise
+
+            if prev_workout["Comment"] != "": # if the user wrote a comment for this workout
+                workout_str = f"{workout_str}Comment: {prev_workout['Comment']}" # add comment to the string
+
 
             return workout_str
 
