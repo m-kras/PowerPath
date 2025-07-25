@@ -161,76 +161,6 @@
                 size_hint_x: 1
                 size_hint_y: None
 
-<PastScreen>:
-
-    canvas.before:
-        Color:
-            rgba: 0.1, 0.1, 0.1, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
-    ScrollView:
-        BoxLayout:
-
-            orientation: "vertical"
-            size_hint_y: None
-            size_hint_x: None
-            height: self.minimum_height
-            width: root.width
-            spacing: "30sp"
-            padding: "30sp"
-
-            Button:
-                text: "Back"
-                font_size: root.width * 0.03
-                size_hint_x: 0.3
-                size_hint_y: None
-                pos_hint: {"x": 0.01}
-                height: "45sp"
-                on_press:
-                    root.manager.transition.direction = "right"
-                    app.root.current = "home"
-
-            Label:
-                text: "Past Workouts"
-                font_size: root.width * 0.07
-                size_hint_y: None
-
-            Spinner:
-                id: workout_spinner
-                font_size: root.width * 0.04
-                size_hint_x: 0.7
-                size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "60sp"
-
-            Label:
-                id: feedback_label
-                font_size: root.width * 0.03
-                bold: True
-                size_hint_y: None
-                height: "40sp"
-
-            Button:
-                text: "Show"
-                font_size: root.width * 0.04
-                size_hint_x: 0.5
-                size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "70sp"
-                on_press: root.show_past_workouts()
-
-            Label:
-                id: main_label
-                font_size: root.width * 0.04
-                halign: "center"
-                valign: "top"
-                text_size: self.width, None
-                height: self.texture_size[1]
-                size_hint_x: 1
-                size_hint_y: None
-
 
 <ManageScreen>:
 
@@ -535,6 +465,110 @@
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
             on_press: Factory.CancelPopup().open()
+
+
+<PastScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        BoxLayout:
+
+            orientation: "vertical"
+            size_hint_y: None
+            size_hint_x: None
+            height: self.minimum_height
+            width: root.width
+            spacing: "30sp"
+            padding: "30sp"
+
+            Button:
+                text: "Back"
+                font_size: root.width * 0.03
+                size_hint_x: 0.3
+                size_hint_y: None
+                pos_hint: {"x": 0.01}
+                height: "45sp"
+                on_press:
+                    root.manager.transition.direction = "right"
+                    app.root.current = "home"
+
+            Label:
+                text: "Past Workouts"
+                font_size: root.width * 0.07
+                size_hint_y: None
+
+            Spinner:
+                id: workout_spinner
+                font_size: root.width * 0.04
+                size_hint_x: 0.7
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: "60sp"
+
+            Label:
+                id: feedback_label
+                font_size: root.width * 0.03
+                bold: True
+                size_hint_y: None
+                height: "40sp"
+
+            Button:
+                text: "Show"
+                font_size: root.width * 0.04
+                size_hint_x: 0.5
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: "60sp"
+                on_press: root.show_past_workouts()
+
+            Button:
+                text: "Edit"
+                font_size: root.width * 0.04
+                size_hint_x: 0.5
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: "60sp"
+                on_press:
+                    root.show_editor()
+                    font_size: root.width * 0.04
+
+
+            TextInput:
+                id: edit_box
+                opacity: 0
+                disabled: True
+                text_size: self.width, None
+                size_hint_x: 1
+                size_hint_y: None
+                height: self.minimum_height
+                on_text: self.height = self.minimum_height
+                multiline: True
+
+            Label:
+                id: main_label
+                font_size: root.width * 0.04
+                halign: "center"
+                valign: "top"
+                text_size: self.width, None
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+            Button:
+                id: apply_btn
+                opacity: 0
+                disabled: True
+                text: "Apply Changes"
+                size_hint_x: 0.5
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: "60sp"
 
 
 <CancelPopup@PopUp>:

@@ -1,16 +1,18 @@
-__version__ = '1.0.5'
-
-# imports
+# kivy imports
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 
+# other imports
 import csv
 import os.path
 from datetime import date
 from datetime import datetime
 from pathlib import Path
+
+
+__version__ = '1.1.0'
 
 
 class HomeScreen(Screen):
@@ -369,7 +371,12 @@ class PastScreen(Screen):
         workout_list = app.get_workouts()  # list with all the currently saved workouts
         self.ids.workout_spinner.values = workout_list  # update spinner values on every re-entry
         self.ids.workout_spinner.text = "Select Workout"  # reset spinner text
-
+        self.ids.edit_box.disabled = True # disable edit_box
+        self.ids.edit_box.opacity = 0 # hide edit_box
+        self.ids.apply_btn.disabled = True  # enable apply_btn
+        self.ids.apply_btn.opacity = 0  # show apply_btn
+        self.ids.main_label.disabled = False  # enable main_label
+        self.ids.main_label.opacity = 1  # show main_label
         self.ids.main_label.text = "" # clear main_label
         self.ids.feedback_label.text = "" # clear feedback_label
 
@@ -407,6 +414,32 @@ class PastScreen(Screen):
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout." # negative feedback
             self.ids.feedback_label.color = 1, 0, 0, 1 # red
+
+    def show_editor(self):
+        app = App.get_running_app()  # for get_data_path
+        edit_str = "" # string that will contain the edit text (all the dicts)
+
+        self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
+        if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
+            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:  # open csv in reading mode
+                dictreader = csv.DictReader(file, delimiter=";")
+
+                for obj in dictreader:
+                    edit_str = f"{edit_str}{obj}\n\n" # add dict to the string (with an empty line to the next dict)
+
+            # show/hide widgets
+            self.ids.main_label.disabled = True # disable main_label
+            self.ids.main_label.opacity = 0 # hide main_label
+            self.ids.edit_box.disabled = False  # enable edit_box
+            self.ids.edit_box.opacity = 1  # show edit_box
+            self.ids.apply_btn.disabled = False # enable apply_btn
+            self.ids.apply_btn.opacity = 1 # show apply_btn
+
+            self.ids.edit_box.text = edit_str # show edit_str in the edit_box
+
+        else: # no workout selected
+            self.ids.feedback_label.text = "Please select a Workout."  # negative feedback
+            self.ids.feedback_label.color = 1, 0, 0, 1  # red
 
 
 class DelWrkPopup(Popup):
