@@ -30,6 +30,7 @@ class AddWrkScreen(Screen):
     def on_pre_enter(self, *args):
         self.added_exercises = [] # list to save all the added exercises for one workout
         self.ids.exercise_input.hint_text = "Exercise 1" # reset hint_text
+        self.ids.exercise_input.text = "" # reset exercise text
         self.ids.name_input.text = "" # reset name text
         self.ids.feedback_label.text = "" # hide feedback
 
@@ -77,7 +78,6 @@ class AddWrkScreen(Screen):
             self.ids.feedback_label.text = "Allowed characters: a-z, 0-9, (), -, ., Space"  # update text
             self.ids.feedback_label.color = 1, 0, 0, 1  # green
             self.ids.feedback_label.bold = True  # make text bold
-
             self.ids.exercise_input.text = "" # clear text
 
     # save the workout
@@ -245,6 +245,7 @@ class SessionScreen(Screen):
 
     def get_prev_workout(self):
         # find most recent workout date
+
         if self.prev_workouts != []:  # if there are any previous workouts
             recent_date = datetime.strptime(self.prev_workouts[0]["Date"], "%d/%m/%Y").date()  # convert to date obj.
 
@@ -269,7 +270,7 @@ class SessionScreen(Screen):
                     value = eval(value)  # convert str rep. of list into actual list
 
                     for obj in value:  # for every set of an exercise
-                        workout_str = f"{workout_str}\n({obj[0]} KG, {obj[1]} Reps)"  # second part of addition
+                        workout_str = f"{workout_str}\n({obj[0]}, {obj[1]})"  # second part of addition
 
                 workout_str = f"{workout_str}\n"  # add new line before next exercise
 
@@ -289,7 +290,7 @@ class SessionScreen(Screen):
 
         # checks
         if weight.replace(".", "").replace(",", "").isnumeric() and reps.isnumeric(): # input must be numeric (except "." and ",")
-            self.current_exercise_sets.append([weight, reps]) # append both values to list (in form of a list)
+            self.current_exercise_sets.append([f"{weight} KG", f"{reps} Reps"]) # append both values to list (in form of a list)
 
             self.ids.feedback_label.text = "Set added!" # give positive feedback
             self.ids.feedback_label.color = 0, 1, 0, 1 # green
@@ -394,7 +395,7 @@ class PastScreen(Screen):
                             value = eval(value)  # convert str rep. of list into actual list
 
                             for i in value:  # for every set of an exercise
-                                workout_history = f"{workout_history}\n({i[0]} KG, {i[1]} Reps)"  # second part of addition
+                                workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
 
                     if obj["Comment"] != "": # if the user wrote a comment for this workout
                         workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
