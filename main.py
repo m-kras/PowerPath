@@ -10,9 +10,11 @@ import os.path
 from datetime import date
 from datetime import datetime
 from pathlib import Path
+import ast
+import re
 
 
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 
 
 class HomeScreen(Screen):
@@ -269,12 +271,12 @@ class SessionScreen(Screen):
                 if value != "":  # if there is a value to the key
                     workout_str = f"{workout_str}{key}: "  # first part of addition
 
-                    value = eval(value)  # convert str rep. of list into actual list
+                    value = ast.literal_eval(value)  # convert str rep. of list into actual list
 
                     for obj in value:  # for every set of an exercise
                         workout_str = f"{workout_str}\n({obj[0]}, {obj[1]})"  # second part of addition
 
-                workout_str = f"{workout_str}\n"  # add new line before next exercise
+                    workout_str = f"{workout_str}\n"  # add new line before next exercise
 
             if prev_workout["Comment"] != "": # if the user wrote a comment for this workout
                 workout_str = f"{workout_str}Comment: {prev_workout['Comment']}" # add comment to the string
@@ -371,12 +373,9 @@ class PastScreen(Screen):
         workout_list = app.get_workouts()  # list with all the currently saved workouts
         self.ids.workout_spinner.values = workout_list  # update spinner values on every re-entry
         self.ids.workout_spinner.text = "Select Workout"  # reset spinner text
-        self.ids.edit_box.disabled = True # disable edit_box
-        self.ids.edit_box.opacity = 0 # hide edit_box
-        self.ids.apply_btn.disabled = True  # enable apply_btn
-        self.ids.apply_btn.opacity = 0  # show apply_btn
-        self.ids.main_label.disabled = False  # enable main_label
-        self.ids.main_label.opacity = 1  # show main_label
+
+        # configure widgets (hide/show/clear text)
+        self.edit_or_show(True) # showing mode by default
         self.ids.main_label.text = "" # clear main_label
         self.ids.feedback_label.text = "" # clear feedback_label
 
@@ -384,6 +383,7 @@ class PastScreen(Screen):
         app = App.get_running_app() # for get_data_path
 
         self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
+        self.edit_or_show(True)  # configure widgets (showing mode)
 
         if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
             with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:  # open csv in reading mode
@@ -399,7 +399,7 @@ class PastScreen(Screen):
                         if value != "":  # if there is a value to the key
                             workout_history = f"{workout_history}\n{key}: "  # first part of addition
 
-                            value = eval(value)  # convert str rep. of list into actual list
+                            value = ast.literal_eval(value)  # convert str rep. of list into actual list
 
                             for i in value:  # for every set of an exercise
                                 workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
@@ -407,7 +407,7 @@ class PastScreen(Screen):
                     if obj["Comment"] != "": # if the user wrote a comment for this workout
                         workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
 
-                        workout_history = f"{workout_history}\n\n"  # add empty line to next workout
+                    workout_history = f"{workout_history}\n\n"
 
                 self.ids.main_label.text = workout_history # set label text to workout_history string
 
@@ -427,19 +427,106 @@ class PastScreen(Screen):
                 for obj in dictreader:
                     edit_str = f"{edit_str}{obj}\n\n" # add dict to the string (with an empty line to the next dict)
 
-            # show/hide widgets
-            self.ids.main_label.disabled = True # disable main_label
-            self.ids.main_label.opacity = 0 # hide main_label
-            self.ids.edit_box.disabled = False  # enable edit_box
-            self.ids.edit_box.opacity = 1  # show edit_box
-            self.ids.apply_btn.disabled = False # enable apply_btn
-            self.ids.apply_btn.opacity = 1 # show apply_btn
+            self.edit_or_show(False) # configure widgets (editing mode)
 
             self.ids.edit_box.text = edit_str # show edit_str in the edit_box
 
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout."  # negative feedback
             self.ids.feedback_label.color = 1, 0, 0, 1  # red
+
+
+    def check_changes(self):
+        result_list = [] # list to store the final version (final dicts)
+
+        changed_str = self.ids.edit_box.text # get the changed string (containing dicts)
+        changed_str = changed_str.replace("\n", "") # remove newlines (in between each dict)
+
+        dict_strings = re.findall(r"\{.*?\}", changed_str) # find all dict_strings
+        cleared_string = re.sub(r"\{.*?\}", "", changed_str) # remove all matches
+
+        if cleared_string.strip() == "":
+            try: # dict checks
+                prev_keys = []
+                for d in dict_strings:
+                    parsed_dict = ast.literal_eval(d) # str to literal dict (note: sets inside are still strings!)
+                    dict_keys = list(parsed_dict.keys())
+
+                    # check for equal fieldnames (exercises)
+                    if dict_keys != prev_keys and prev_keys != []:
+                        self.ids.edit_feedback.text = f"Invalid. Check exercise names."
+                        self.ids.edit_feedback.color = 1, 0, 0, 1
+                        return
+                    else:
+                        prev_keys = dict_keys
+
+                    for key, value in parsed_dict.items():
+                        if key == "Date":
+                            try:
+                                date = value
+                                datetime.strptime(date, "%d/%m/%Y")  # check if date format is correct
+                            except ValueError:
+                                pass
+                                self.ids.edit_feedback.text = f"Invalid date format: {date}."
+                                self.ids.edit_feedback.color = 1, 0, 0, 1
+                                return
+
+                        elif (key != "Comment" and value != ""):
+                            parsed_dict[key] = ast.literal_eval(value) # str to literal nested list
+
+                            for obj in ast.literal_eval(value): # for each list in value
+                                if re.match(r"\d+ KG", obj[0]) == None or re.match(r"\d+ Reps", obj[1]) == None:
+                                    self.ids.edit_feedback.text = f"Invalid edits. Check {date}."
+                                    self.ids.edit_feedback.color = 1, 0, 0, 1
+                                    return
+
+                    result_list.append(parsed_dict)
+
+            except Exception:
+                self.ids.edit_feedback.text = "Invalid edits. Not saved."
+                self.ids.edit_feedback.color = 1, 0, 0, 1
+                return
+
+            self.ids.edit_feedback.text = "Edits saved!"
+            self.ids.edit_feedback.color = 0, 1, 0, 1
+
+            self.save_changes(result_list) # if no problems, run saving method
+
+        else:
+            self.ids.edit_feedback.text = "Invalid. Check these: {}"
+            self.ids.edit_feedback.color = 1, 0, 0, 1
+
+    def save_changes(self, result_list):
+        app = App.get_running_app()  # for get_data_path
+
+        fieldnames = list(result_list[0].keys())
+
+        with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "w", newline="") as file:
+            dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
+            dictwriter.writeheader()
+            for obj in result_list:
+                dictwriter.writerow(obj) # add every dict (workout)
+
+    def edit_or_show(self, bool):
+        if bool: # True as parameter -> showing mode
+            self.ids.main_label.disabled = False  # enable main_label
+            self.ids.main_label.opacity = 1  # show main_label
+            self.ids.edit_box.disabled = True  # disable edit_box
+            self.ids.edit_box.opacity = 0  # hide edit_box
+            self.ids.apply_btn.disabled = True  # disable apply_btn
+            self.ids.apply_btn.opacity = 0  # hide apply_btn
+            self.ids.edit_feedback.disabled = True  # disable edit_feedback
+            self.ids.edit_feedback.opacity = 0  # hide edit_feedback
+
+        else: # False as parameter -> editing mode
+            self.ids.main_label.disabled = True  # disable main_label
+            self.ids.main_label.opacity = 0  # hide main_label
+            self.ids.edit_box.disabled = False  # enable edit_box
+            self.ids.edit_box.opacity = 1  # show edit_box
+            self.ids.apply_btn.disabled = False  # enable apply_btn
+            self.ids.apply_btn.opacity = 1  # show apply_btn
+            self.ids.edit_feedback.disabled = False  # enable edit_feedback
+            self.ids.edit_feedback.opacity = 1  # show edit_feedback
 
 
 class DelWrkPopup(Popup):

@@ -405,7 +405,7 @@
             font_size: root.width * 0.05
             font_name: "data/Parkinsans-Bold.ttf"
             size_hint: 0.7, 0.15
-            pos_hint: {"center_x": 0.5, "center_y": 0.9}
+            pos_hint: {"center_x": 0.5, "center_y": 0.87}
 
         TextInput:
             id: weight_input
@@ -551,14 +551,13 @@
                 multiline: True
 
             Label:
-                id: main_label
-                font_size: root.width * 0.04
-                halign: "center"
-                valign: "top"
-                text_size: self.width, None
-                height: self.texture_size[1]
-                size_hint_x: 1
+                id: edit_feedback
+                opacity: 0
+                disabled: True
+                font_size: root.width * 0.03
+                bold: True
                 size_hint_y: None
+                height: "40sp"
 
             Button:
                 id: apply_btn
@@ -569,6 +568,17 @@
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
                 height: "60sp"
+                on_press: root.check_changes()
+
+            Label:
+                id: main_label
+                font_size: root.width * 0.04
+                halign: "center"
+                valign: "top"
+                text_size: self.width, None
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
 
 
 <CancelPopup@PopUp>:
