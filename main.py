@@ -14,7 +14,7 @@ import ast
 import re
 
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 
 class HomeScreen(Screen):
@@ -378,57 +378,57 @@ class PastScreen(Screen):
         self.ids.main_label.text = ""
         self.ids.feedback_label.text = ""
 
-    def show_past_workouts(self):
-        app = App.get_running_app() # for get_data_path
+    def get_past_workouts(self, workout_name):
+        app = App.get_running_app()  # for get_data_path
+        dict_list = []
 
+        with open(app.get_data_path(f"{workout_name}.csv"), "r") as file:
+            dictreader = csv.DictReader(file, delimiter=";")
+
+            for obj in dictreader:  # for each dictionary (a dict is a workout)
+                dict_list.append(obj)
+
+        sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
+
+        workout_history = "" # string for entire workout history
+
+        for obj in sorted_list: # for each dictionary (a dict is a workout)
+
+            workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
+
+            for key, value in list(obj.items())[1:-1]:  # iterating over a list of tuples, each containing a key and value
+                if value != "":
+                    workout_history = f"{workout_history}\n{key}: "  # first part of addition
+
+                    value = ast.literal_eval(value)  # convert str rep. of list into actual list
+
+                    for i in value:  # for every set of an exercise
+                        workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
+
+            if obj["Comment"] != "": # if the user wrote a comment for this workout
+                workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
+
+            workout_history = f"{workout_history}\n\n"
+
+        return workout_history
+
+    def show_past_workouts(self):
         self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
         self.edit_or_show(True)  # configure widgets (showing mode)
 
-        if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
-            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
-                dictreader = csv.DictReader(file, delimiter=";")
-
-                workout_history = "" # string for entire workout history
-
-                for obj in dictreader: # for each dictionary (a dict is a workout)
-
-                    workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
-
-                    for key, value in list(obj.items())[1:-1]:  # iterating over a list of tuples, each containing a key and value
-                        if value != "":
-                            workout_history = f"{workout_history}\n{key}: "  # first part of addition
-
-                            value = ast.literal_eval(value)  # convert str rep. of list into actual list
-
-                            for i in value:  # for every set of an exercise
-                                workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
-
-                    if obj["Comment"] != "": # if the user wrote a comment for this workout
-                        workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
-
-                    workout_history = f"{workout_history}\n\n"
-
-                self.ids.main_label.text = workout_history
+        if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
+            self.ids.main_label.text = self.get_past_workouts(self.ids.workout_spinner.text)
 
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout."
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def show_editor(self):
-        app = App.get_running_app()  # for get_data_path
-        edit_str = "" # string that will contain the edit text (all the dicts)
-
         self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
+
         if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
-            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
-                dictreader = csv.DictReader(file, delimiter=";")
-
-                for obj in dictreader:
-                    edit_str = f"{edit_str}{obj}\n\n" # add dict to the string (with an empty line to the next dict)
-
             self.edit_or_show(False) # configure widgets (editing mode)
-
-            self.ids.edit_box.text = edit_str # show edit_str in the edit_box
+            self.ids.edit_box.text = self.get_past_workouts(self.ids.workout_spinner.text) # show history in edit_box
 
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout."
@@ -437,62 +437,11 @@ class PastScreen(Screen):
     def check_changes(self):
         result_list = [] # list to store the final version (final dicts)
 
-        changed_str = self.ids.edit_box.text # get the changed string (containing dicts)
+        new_str = self.ids.edit_box.text # get the edited string
         changed_str = changed_str.replace("\n", "") # remove newlines (in between each dict)
 
         dict_strings = re.findall(r"\{.*?\}", changed_str) # find all dict_strings
         cleared_string = re.sub(r"\{.*?\}", "", changed_str) # remove all matches
-
-        if cleared_string.strip() == "":
-            try: # dict checks
-                prev_keys = []
-                for d in dict_strings:
-                    parsed_dict = ast.literal_eval(d) # str to literal dict (note: sets inside are still strings!)
-                    dict_keys = list(parsed_dict.keys())
-
-                    # check for equal fieldnames (exercises)
-                    if dict_keys != prev_keys and prev_keys != []:
-                        self.ids.edit_feedback.text = f"Invalid. Check exercise names."
-                        self.ids.edit_feedback.color = 1, 0, 0, 1
-                        return
-                    else:
-                        prev_keys = dict_keys
-
-                    for key, value in parsed_dict.items():
-                        if key == "Date":
-                            try:
-                                date = value
-                                datetime.strptime(date, "%d/%m/%Y")  # check if date format is correct
-                            except ValueError:
-                                pass
-                                self.ids.edit_feedback.text = f"Invalid date format: {date}."
-                                self.ids.edit_feedback.color = 1, 0, 0, 1
-                                return
-
-                        elif (key != "Comment" and value != ""):
-                            parsed_dict[key] = ast.literal_eval(value) # str to literal nested list
-
-                            for obj in ast.literal_eval(value): # for each list in value
-                                if re.match(r"\d+ KG", obj[0]) == None or re.match(r"\d+ Reps", obj[1]) == None:
-                                    self.ids.edit_feedback.text = f"Invalid edits. Check {date}."
-                                    self.ids.edit_feedback.color = 1, 0, 0, 1
-                                    return
-
-                    result_list.append(parsed_dict)
-
-            except Exception:
-                self.ids.edit_feedback.text = "Invalid edits. Not saved."
-                self.ids.edit_feedback.color = 1, 0, 0, 1
-                return
-
-            self.ids.edit_feedback.text = "Edits saved!"
-            self.ids.edit_feedback.color = 0, 1, 0, 1
-
-            self.save_changes(result_list) # if no problems, run saving method
-
-        else:
-            self.ids.edit_feedback.text = "Invalid. Check these: {}"
-            self.ids.edit_feedback.color = 1, 0, 0, 1
 
     def save_changes(self, result_list):
         app = App.get_running_app()  # for get_data_path
@@ -505,26 +454,31 @@ class PastScreen(Screen):
             for obj in result_list:
                 dictwriter.writerow(obj) # add every dict (workout)
 
-    def edit_or_show(self, bool):
-        if bool: # True as parameter -> showing mode
+    def edit_or_show(self, showing_mode):
+        if showing_mode: # True as parameter -> showing mode
             self.ids.main_label.disabled = False
             self.ids.main_label.opacity = 1
-            self.ids.edit_box.disabled = True
-            self.ids.edit_box.opacity = 0
-            self.ids.apply_btn.disabled = True
-            self.ids.apply_btn.opacity = 0
-            self.ids.edit_feedback.disabled = True
-            self.ids.edit_feedback.opacity = 0
+            self.ids.main_label.height = self.ids.main_label.texture_size[1]
+            self.ids.main_label.size_hint_y = None
+
+            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback]:
+                wid.opacity = 0
+                wid.disabled = True
+                wid.height = 0
+                wid.size_hint_y = None
+
 
         else: # False as parameter -> editing mode
             self.ids.main_label.disabled = True
             self.ids.main_label.opacity = 0
-            self.ids.edit_box.disabled = False
-            self.ids.edit_box.opacity = 1
-            self.ids.apply_btn.disabled = False
-            self.ids.apply_btn.opacity = 1
-            self.ids.edit_feedback.disabled = False
-            self.ids.edit_feedback.opacity = 1
+            self.ids.main_label.height = 0
+            self.ids.main_label.size_hint_y = None
+
+            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback]:
+                wid.opacity = 1
+                wid.disabled = False
+                wid.height = wid.minimum_height if hasattr(wid, "minimum_height") else 60
+                wid.size_hint_y = None
 
 
 class DelWrkPopup(Popup):
