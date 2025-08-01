@@ -378,6 +378,8 @@ class PastScreen(Screen):
         self.edit_or_show(True) # showing mode by default
         self.ids.main_label.text = ""
         self.ids.feedback_label.text = ""
+        self.ids.edit_box.text = ""
+        self.ids.edit_feedback.text = ""
 
     def get_workouts_str(self, workout_name):
         app = App.get_running_app()  # for get_data_path
@@ -464,17 +466,19 @@ class PastScreen(Screen):
             self.ids.edit_box.text = str_without_date.strip() # show
 
     def parse_new_str(self):
+        app = App.get_running_app()  # for get_data_path
         new_dict = {}
         new_str = self.ids.edit_box.text # get the edited string
 
         try:
             new_dict.update({"Date": self.ids.date_spinner.text})
 
-            exer_matches = re.findall(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n)+)", new_str, re.DOTALL) # find exercises + sets
-            new_str = re.sub(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n)+)", "", new_str)
+            exer_matches = re.findall(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n?)+)", new_str, re.DOTALL) # find exercises + sets
+            new_str = re.sub(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n?)+)", "", new_str)
+
             for match in exer_matches:
                 name_match = re.search(r"(\w+):", match) # find exercise name
-                new_str = re.sub(re.escape(name_match.group(0)), "", new_str) # remove current exercise name
+                new_str = re.sub(re.escape(name_match.group(1)), "", new_str) # remove current exercise name
 
                 set_iter = re.finditer(r"\((\d+\sKG),\s?(\d+\sReps)\)", match) # returns iterable
                 set_matches = []
@@ -487,11 +491,16 @@ class PastScreen(Screen):
             comment_match = re.search(r"Comment:\s?(.+)", new_str) # find comment
             if comment_match != None:
                 new_dict.update({"Comment": comment_match.group(1)})
-
-            else:
-                new_dict.update({"Comment": ''})
-
             new_str = re.sub(r"Comment:\s?(.+)?", "", new_str)  # remove comment
+
+            # filling missing keys (exercises or comment)
+            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
+                dictreader = csv.DictReader(file, delimiter=";")
+                fieldnames = dictreader.fieldnames # get fieldnames to compare to exercise keys
+
+            for obj in fieldnames:
+                if obj not in new_dict.keys():
+                    new_dict.update({obj: ''}) # add missing key and empty str as value
 
             if new_str.strip() == "": # should be empty if edits are valid
                 self.replace_workout(new_dict) # move on to next method
