@@ -538,6 +538,16 @@
                     root.show_editor()
                     font_size: root.width * 0.04
 
+            Spinner:
+                id: date_spinner
+                opacity: 0
+                disabled: True
+                font_size: root.width * 0.02
+                size_hint_x: 0.3
+                size_hint_y: None
+                pos_hint: {"center_x": 0.5}
+                height: "50sp"
+                on_text: root.on_date_selected()
 
             TextInput:
                 id: edit_box
@@ -554,10 +564,12 @@
                 id: edit_feedback
                 opacity: 0
                 disabled: True
-                font_size: root.width * 0.03
+                font_size: root.width * 0.02
                 bold: True
                 size_hint_y: None
-                height: "40sp"
+                halign: "center"
+                valign: "top"
+                height: "45sp"
 
             Button:
                 id: apply_btn
@@ -567,8 +579,8 @@
                 size_hint_x: 0.5
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
-                height: "60sp"
-                on_press: root.check_changes()
+                height: "50sp"
+                on_press: root.parse_new_str()
 
             Label:
                 id: main_label

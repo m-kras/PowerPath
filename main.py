@@ -367,18 +367,19 @@ class SessionScreen(Screen):
 
 class PastScreen(Screen):
     def on_pre_enter(self, *args):
-        # update spinner
+        # update spinners
         app = App.get_running_app()
         workout_list = app.get_workouts()  # list with all the currently saved workouts
         self.ids.workout_spinner.values = workout_list  # update spinner values on every re-entry
         self.ids.workout_spinner.text = "Select Workout"
+        self.ids.date_spinner.text = "Select Date"
 
         # configure widgets (hide/show/clear text)
         self.edit_or_show(True) # showing mode by default
         self.ids.main_label.text = ""
         self.ids.feedback_label.text = ""
 
-    def get_past_workouts(self, workout_name):
+    def get_workouts_str(self, workout_name):
         app = App.get_running_app()  # for get_data_path
         dict_list = []
 
@@ -417,42 +418,124 @@ class PastScreen(Screen):
         self.edit_or_show(True)  # configure widgets (showing mode)
 
         if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
-            self.ids.main_label.text = self.get_past_workouts(self.ids.workout_spinner.text)
+            self.ids.main_label.text = self.get_workouts_str(self.ids.workout_spinner.text)
 
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout."
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def show_editor(self):
+        app = App.get_running_app()  # for get_data_path
         self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
 
         if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
-            self.edit_or_show(False) # configure widgets (editing mode)
-            self.ids.edit_box.text = self.get_past_workouts(self.ids.workout_spinner.text) # show history in edit_box
+            dict_list = []
+            date_list = []
+
+            # get workout dates
+            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
+                dictreader = csv.DictReader(file, delimiter=";")
+                for obj in dictreader:
+                    dict_list.append(obj)
+
+                sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
+
+                for obj in sorted_list:
+                    date_list.append(obj["Date"])
+
+            self.ids.date_spinner.values = date_list
+            self.edit_or_show(False)  # configure widgets (editing mode)
 
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout."
             self.ids.feedback_label.color = 1, 0, 0, 1
 
-    def check_changes(self):
-        result_list = [] # list to store the final version (final dicts)
+    # checks whether date has been selected
+    def on_date_selected(self):
+        if self.ids.date_spinner.text == "Select Date": # no date selected yet
+            return
 
+        else:
+            whole_history = self.get_workouts_str(self.ids.workout_spinner.text) # get str with entire workout history
+            this_workout = re.findall(
+                fr"(Date: {re.escape(self.ids.date_spinner.text)}.+?)(?=Date:|\Z)",
+                whole_history, re.DOTALL) # extract the selected workout
+            str_without_date = re.sub(r"Date: (\d\d/\d\d/\d\d\d\d)", "", this_workout[0]) # remove date
+            self.ids.edit_box.text = str_without_date.strip() # show
+
+    def parse_new_str(self):
+        new_dict = {}
         new_str = self.ids.edit_box.text # get the edited string
-        changed_str = changed_str.replace("\n", "") # remove newlines (in between each dict)
 
-        dict_strings = re.findall(r"\{.*?\}", changed_str) # find all dict_strings
-        cleared_string = re.sub(r"\{.*?\}", "", changed_str) # remove all matches
+        try:
+            new_dict.update({"Date": self.ids.date_spinner.text})
 
-    def save_changes(self, result_list):
+            exer_matches = re.findall(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n)+)", new_str, re.DOTALL) # find exercises + sets
+            new_str = re.sub(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n)+)", "", new_str)
+            for match in exer_matches:
+                name_match = re.search(r"(\w+):", match) # find exercise name
+                new_str = re.sub(re.escape(name_match.group(0)), "", new_str) # remove current exercise name
+
+                set_iter = re.finditer(r"\((\d+\sKG),\s?(\d+\sReps)\)", match) # returns iterable
+                set_matches = []
+                for s in set_iter:
+                    set_matches.append([s.group(1), s.group(2)]) # collect weight and reps
+                    new_str = re.sub(re.escape(s.group(0)), "", new_str) # remove current sets
+
+                new_dict.update({name_match.group(1): str(set_matches)})
+
+            comment_match = re.search(r"Comment:\s?(.+)", new_str) # find comment
+            if comment_match != None:
+                new_dict.update({"Comment": comment_match.group(1)})
+
+            else:
+                new_dict.update({"Comment": ''})
+
+            new_str = re.sub(r"Comment:\s?(.+)?", "", new_str)  # remove comment
+
+            if new_str.strip() == "": # should be empty if edits are valid
+                self.replace_workout(new_dict) # move on to next method
+
+            else:
+                self.ids.edit_feedback.text = f"Invalid edits. Hint:\n{new_str}"
+                self.ids.edit_feedback.color = 1, 0, 0, 1
+
+        except Exception as e:
+            print(e)
+            self.ids.edit_feedback.text = "Invalid."
+            self.ids.edit_feedback.color = 1, 0, 0, 1
+
+    def replace_workout(self, new_dict):
         app = App.get_running_app()  # for get_data_path
+        workout_list = []
 
-        fieldnames = list(result_list[0].keys())
+        with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
+            dictreader = csv.DictReader(file, delimiter=";")
+            for row in dictreader:
+                workout_list.append(row)
+
+        for obj in workout_list:
+            if obj["Date"] == new_dict["Date"]: # find edited workout (based on date)
+                workout_list[workout_list.index(obj)] = new_dict # replace workout (dict) in list
+                break
+
+        # checking if all workouts have the same exercises
+        for obj in workout_list:
+            if obj.keys() != new_dict.keys():
+                self.ids.edit_feedback.text = "Invalid. Hint:\nCheck exercise names."
+                self.ids.edit_feedback.color = 1, 0, 0, 1
+                return
+
+        fieldnames = new_dict.keys()
 
         with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "w", newline="") as file:
             dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
             dictwriter.writeheader()
-            for obj in result_list:
-                dictwriter.writerow(obj) # add every dict (workout)
+            for obj in workout_list:
+                dictwriter.writerow(obj)
+
+        self.ids.edit_feedback.text = ("Changes saved!")
+        self.ids.edit_feedback.color = 0, 1, 0, 1
 
     def edit_or_show(self, showing_mode):
         if showing_mode: # True as parameter -> showing mode
@@ -461,7 +544,7 @@ class PastScreen(Screen):
             self.ids.main_label.height = self.ids.main_label.texture_size[1]
             self.ids.main_label.size_hint_y = None
 
-            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback]:
+            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback, self.ids.date_spinner]:
                 wid.opacity = 0
                 wid.disabled = True
                 wid.height = 0
@@ -474,10 +557,10 @@ class PastScreen(Screen):
             self.ids.main_label.height = 0
             self.ids.main_label.size_hint_y = None
 
-            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback]:
+            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback, self.ids.date_spinner]:
                 wid.opacity = 1
                 wid.disabled = False
-                wid.height = wid.minimum_height if hasattr(wid, "minimum_height") else 60
+                wid.height = wid.minimum_height if hasattr(wid, "minimum_height") else 50
                 wid.size_hint_y = None
 
 
