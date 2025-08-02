@@ -6,6 +6,7 @@ PowerPath is an app (created with python / kivy) that lets you track your traini
 - Delete workout blueprints
 - Start training sessions based on your saved workouts
 - View your workout history / progress
+- Edit past workouts
 
 ## Installation
 The app can be found on Google Play Store to install on an android device.
