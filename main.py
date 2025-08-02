@@ -185,15 +185,17 @@ class StartSessionScreen(Screen):
     def start_session(self):
         if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
 
-            date_check = True
+            # check for correct date format
+            date_check = False
             try:
-                datetime.strptime(self.ids.date_input.text, "%d/%m/%Y") # check if date correct
+                datetime.strptime(self.ids.date_input.text, "%d/%m/%Y")
+                if len(self.ids.date_input.text) == 10:
+                    date_check = True
             except ValueError:
                 pass
-                date_check = False
 
             if date_check: # run only if date format is valid
-
+                print("entered")
                 App.get_running_app().custom_var = [self.ids.workout_spinner.text, self.ids.date_input.text]  # share workout, date
 
                 self.manager.transition.direction = "left"
@@ -470,6 +472,11 @@ class PastScreen(Screen):
         new_dict = {}
         new_str = self.ids.edit_box.text # get the edited string
 
+        if new_str == "":
+            self.ids.edit_feedback.text = "Please select a date."
+            self.ids.edit_feedback.color = 1, 0, 0, 1
+            return
+
         try:
             new_dict.update({"Date": self.ids.date_spinner.text})
 
@@ -569,7 +576,7 @@ class PastScreen(Screen):
             for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback, self.ids.date_spinner]:
                 wid.opacity = 1
                 wid.disabled = False
-                wid.height = wid.minimum_height if hasattr(wid, "minimum_height") else 50
+                wid.height = wid.minimum_height if hasattr(wid, "minimum_height") else 60
                 wid.size_hint_y = None
 
 

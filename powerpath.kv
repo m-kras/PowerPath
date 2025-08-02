@@ -400,7 +400,7 @@
             id: date_label
             font_size: root.width * 0.02
             bold: True
-            pos_hint: {"center_x": 0.88, "center_y": 0.98}
+            pos_hint: {"center_x": 0.88, "center_y": 0.94}
 
         Button:
             text: "Previous Workout"
@@ -553,7 +553,7 @@
                 opacity: 0
                 disabled: True
                 font_size: root.width * 0.02
-                size_hint_x: 0.3
+                size_hint_x: 0.6
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
                 height: "50sp"
@@ -563,6 +563,7 @@
                 id: edit_box
                 opacity: 0
                 disabled: True
+                font_size: root.width * 0.025
                 text_size: self.width, None
                 size_hint_x: 1
                 size_hint_y: None
@@ -586,10 +587,11 @@
                 opacity: 0
                 disabled: True
                 text: "Apply Changes"
-                size_hint_x: 0.5
+                font_size: root.width * 0.023
+                size_hint_x: 0.6
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
-                height: "50sp"
+                height: "60sp"
                 on_press: root.parse_new_str()
 
             Label:
