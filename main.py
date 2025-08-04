@@ -12,9 +12,10 @@ from datetime import datetime
 from pathlib import Path
 import ast
 import re
+from collections import OrderedDict
 
 
-__version__ = '1.2.1'
+__version__ = '1.2.3'
 
 
 class HomeScreen(Screen):
@@ -195,7 +196,6 @@ class StartSessionScreen(Screen):
                 pass
 
             if date_check: # run only if date format is valid
-                print("entered")
                 App.get_running_app().custom_var = [self.ids.workout_spinner.text, self.ids.date_input.text]  # share workout, date
 
                 self.manager.transition.direction = "left"
@@ -401,8 +401,8 @@ class PastScreen(Screen):
 
             workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
 
-            for key, value in list(obj.items())[1:-1]:  # iterating over a list of tuples, each containing a key and value
-                if value != "":
+            for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
+                if value != "" and key != "Comment":
                     workout_history = f"{workout_history}\n{key}: "  # first part of addition
 
                     value = ast.literal_eval(value)  # convert str rep. of list into actual list
@@ -410,8 +410,8 @@ class PastScreen(Screen):
                     for i in value:  # for every set of an exercise
                         workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
 
-            if obj["Comment"] != "": # if the user wrote a comment for this workout
-                workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
+                elif key == "Comment" and value != "": # if the user wrote a comment for this workout
+                    workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
 
             workout_history = f"{workout_history}\n\n"
 
@@ -469,7 +469,7 @@ class PastScreen(Screen):
 
     def parse_new_str(self):
         app = App.get_running_app()  # for get_data_path
-        new_dict = {}
+        new_dict = OrderedDict()
         new_str = self.ids.edit_box.text # get the edited string
 
         if new_str == "":
@@ -509,6 +509,19 @@ class PastScreen(Screen):
                 if obj not in new_dict.keys():
                     new_dict.update({obj: ''}) # add missing key and empty str as value
 
+            # check for invalid exercise names (that are not part of fieldnames)
+            for key in new_dict.keys():
+                if key not in fieldnames:
+                    self.ids.edit_feedback.text = f"Invalid. Hint:\n'{key}' is not in your original workout."
+                    self.ids.edit_feedback.color = 1, 0, 0, 1
+                    return
+
+            ordered_dict = OrderedDict()
+            for key in fieldnames:
+                ordered_dict[key] = new_dict.get(key, '') # preserve value if exists, else empty string
+
+            new_dict = ordered_dict # replace the original dict with the ordered one
+
             if new_str.strip() == "": # should be empty if edits are valid
                 self.replace_workout(new_dict) # move on to next method
 
@@ -517,16 +530,17 @@ class PastScreen(Screen):
                 self.ids.edit_feedback.color = 1, 0, 0, 1
 
         except Exception as e:
-            print(e)
             self.ids.edit_feedback.text = "Invalid."
             self.ids.edit_feedback.color = 1, 0, 0, 1
 
     def replace_workout(self, new_dict):
         app = App.get_running_app()  # for get_data_path
         workout_list = []
+        fieldnames = []
 
         with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
             dictreader = csv.DictReader(file, delimiter=";")
+            fieldnames = dictreader.fieldnames
             for row in dictreader:
                 workout_list.append(row)
 
@@ -534,15 +548,6 @@ class PastScreen(Screen):
             if obj["Date"] == new_dict["Date"]: # find edited workout (based on date)
                 workout_list[workout_list.index(obj)] = new_dict # replace workout (dict) in list
                 break
-
-        # checking if all workouts have the same exercises
-        for obj in workout_list:
-            if obj.keys() != new_dict.keys():
-                self.ids.edit_feedback.text = "Invalid. Hint:\nCheck exercise names."
-                self.ids.edit_feedback.color = 1, 0, 0, 1
-                return
-
-        fieldnames = new_dict.keys()
 
         with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "w", newline="") as file:
             dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
