@@ -15,7 +15,7 @@ import re
 from collections import OrderedDict
 
 
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 
 
 class HomeScreen(Screen):
@@ -31,6 +31,10 @@ class ManageScreen(Screen):
 
 
 class AddWrkScreen(Screen):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
 
     def on_pre_enter(self, *args):
         # reset widgets etc.
@@ -88,25 +92,23 @@ class AddWrkScreen(Screen):
 
     # save the workout
     def save_workout(self):
-        app = App.get_running_app() # for get_data_path
-
         name = self.ids.name_input.text # get workout name
 
         # creation of {workout name}.csv
         if len(self.added_exercises) > 0: # exercises must have been added
             if name != "": # workout must have a name
-                if os.path.isfile(app.get_data_path(f"{name.strip()}.csv")) is False: # check whether workout already exists
+                if os.path.isfile(self.app.get_data_path(f"{name.strip()}.csv")) is False: # check whether workout already exists
 
                     self.added_exercises.insert(0, "Date") # header: Date, Ex1, Ex2, ...
                     self.added_exercises.append("Comment") # last key should be comment
 
                     # create workout-specific csv file
-                    with open(app.get_data_path(f"{name}.csv"), "w", newline="") as file:
+                    with open(self.app.get_data_path(f"{name}.csv"), "w", newline="") as file:
                         writer = csv.DictWriter(file, fieldnames=self.added_exercises, delimiter=";")
                         writer.writeheader() # write header (Date, Ex1, Ex2, ..., Comment)
 
                     # adding name to all_workouts.csv
-                    with open(app.get_data_path("all_workouts.csv"), "a", newline="") as file:
+                    with open(self.app.get_data_path("all_workouts.csv"), "a", newline="") as file:
                         writer = csv.writer(file)
                         writer.writerow([name])
 
@@ -147,9 +149,13 @@ class AddWrkScreen(Screen):
 
 
 class DelWrkScreen(Screen):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
     def on_pre_enter(self):
-        app = App.get_running_app()
-        self.workout_list = app.get_workouts()  # list with all the currently saved workouts
+        self.workout_list = self.app.get_workouts()  # list with all the currently saved workouts
 
         self.ids.delwrk_spinner.values = self.workout_list  # update spinner values on every re-entry
         self.ids.delwrk_spinner.text = "Select Workout"
@@ -169,14 +175,18 @@ class DelWrkScreen(Screen):
 
 
 class StartSessionScreen(Screen):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
     def on_pre_enter(self, *args):
         # labels/texts etc.
         self.ids.workout_spinner.text = "Select Workout"
         self.ids.feedback_label.text = ""
 
         # update spinner values
-        app = App.get_running_app()
-        workout_list = app.get_workouts()  # list with all the currently saved workouts
+        workout_list = self.app.get_workouts()  # list with all the currently saved workouts
         self.ids.workout_spinner.values = workout_list
 
         # set date (user is able to overwrite it)
@@ -185,6 +195,15 @@ class StartSessionScreen(Screen):
 
     def start_session(self):
         if self.ids.workout_spinner.text != "Select Workout": # workout must be selected
+            # check whether date has been used already
+            with open(self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r",
+                      newline="") as file:
+                dictreader = csv.DictReader(file, delimiter=";")
+                for workout in dictreader:
+                    if workout["Date"] == self.ids.date_input.text:
+                        self.ids.feedback_label.text = "Date has been used already."
+                        self.ids.feedback_label.color = 1, 0, 0, 1
+                        return
 
             # check for correct date format
             date_check = False
@@ -192,11 +211,12 @@ class StartSessionScreen(Screen):
                 datetime.strptime(self.ids.date_input.text, "%d/%m/%Y")
                 if len(self.ids.date_input.text) == 10:
                     date_check = True
-            except ValueError:
+            except ValueError as e:
+                print(e)
                 pass
 
             if date_check: # run only if date format is valid
-                App.get_running_app().custom_var = [self.ids.workout_spinner.text, self.ids.date_input.text]  # share workout, date
+                self.app.custom_var = [self.ids.workout_spinner.text, self.ids.date_input.text]  # share workout, date
 
                 self.manager.transition.direction = "left"
                 self.manager.current = "session" # switch to SessionScreen
@@ -212,24 +232,34 @@ class StartSessionScreen(Screen):
 
 
 class SessionScreen(Screen):
-    def on_pre_enter(self, *args):
-        app = App.get_running_app()  # for get_data_path
 
-        # get data from prev. screen
-        self.current_workout = App.get_running_app().custom_var[0]
-        self.current_date = App.get_running_app().custom_var[1]
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
+    def on_pre_enter(self, *args):
+
+        # get data through app's custom_var
+        if type(self.app.custom_var[1]) != dict:
+            self.current_workout = self.app.custom_var[0]
+            self.current_date = self.app.custom_var[1]
+        else:
+            self.current_workout = self.app.custom_var[0]
+            self.current_date = self.app.custom_var[1]["Date"]
 
         # get exercises/previous workouts
         self.exer_list = [] # list to store exercises (from csv header)
         self.prev_workouts = [] # list of dicts (!) to store the previous workouts
 
-        with open(app.get_data_path(f"{self.current_workout}.csv"), "r") as file:
+        with open(self.app.get_data_path(f"{self.current_workout}.csv"), "r") as file:
             dictreader = csv.DictReader(file, delimiter=";")
 
             for obj in dictreader.fieldnames: # for every header object
                 self.exer_list.append(obj) # append the headers of the file (date + exercises) to list
 
-            self.exer_list.remove("Date") # remove date (only exercises needed for now)
+            # remove date and comment (only exercises required)
+            self.exer_list.remove("Date")
+            self.exer_list.remove("Comment")
             self.current_exercise = self.exer_list[0]
 
             for obj in dictreader:
@@ -243,48 +273,60 @@ class SessionScreen(Screen):
         self.ids.reps_input.text = ""
         self.ids.feedback_label.text = ""
         self.ids.comment_input.text = ""
+        self.ids.prev_btn.opacity = 1
+        self.ids.prev_btn.disabled = False
+
+        # for editing mode
+        if type(self.app.custom_var[1]) == dict:
+            self.ids.weight_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][0]
+            self.ids.reps_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][1]
+            self.ids.comment_input.hint_text = self.app.custom_var[1]["Comment"]
+            # hide prev_btn in editing mode
+            self.ids.prev_btn.opacity = 0
+            self.ids.prev_btn.disabled = True
 
         # list and dict (storing data throughout the session)
         self.workout_dict = {"Date": self.current_date} # dict for the entire workout (to write into csv)
         self.current_exercise_sets = [] # list containing all the sets ([weight, reps]) for a given exercise
 
     def get_prev_workout(self):
+
         # find most recent workout date
-        if self.prev_workouts != []:  # if there are any previous workouts
-            recent_date = datetime.strptime(self.prev_workouts[0]["Date"], "%d/%m/%Y").date()  # convert to date obj.
+        if self.prev_workouts != []: # if there are any previous workouts
+            recent_date = datetime.strptime(self.prev_workouts[0]["Date"], "%d/%m/%Y").date()
 
             for obj in self.prev_workouts[1:]:  # for dict in prev_workouts (skipping first object [see above])
                 if datetime.strptime(obj["Date"],
                                      "%d/%m/%Y").date() > recent_date:  # if date of this workout comes after date of the workout before
                     recent_date = datetime.strptime(obj["Date"], "%d/%m/%Y").date()
 
-            # create a string to show the previous workout
-            for obj in self.prev_workouts:  # loop again to find workout with fitting date
-                if datetime.strptime(obj["Date"], "%d/%m/%Y").date() == recent_date:  # if date found
-                    prev_workout = obj  # assign correct dict (prev workout) to variable
-                    break
-
-            workout_str = f"Previous: {prev_workout['Date']}\n"  # start of workout_str
-
-            for key, value in list(prev_workout.items())[
-                              1:-1]:  # iterating over a list of tuples, each containing a key and value
-                if value != "":
-                    workout_str = f"{workout_str}{key}: "  # first part of addition
-
-                    value = ast.literal_eval(value)  # convert str rep. of list into actual list
-
-                    for obj in value:  # for every set of an exercise
-                        workout_str = f"{workout_str}\n({obj[0]}, {obj[1]})"  # second part of addition
-
-                    workout_str = f"{workout_str}\n"  # add new line before next exercise
-
-            if prev_workout["Comment"] != "": # if the user wrote a comment for this workout
-                workout_str = f"{workout_str}Comment: {prev_workout['Comment']}" # add comment to the string
-
-            return workout_str
-
         else:
             return "No previous Workouts..."
+
+        # create a string to show the previous workout
+        for obj in self.prev_workouts:  # loop again to find workout with fitting date
+            if datetime.strptime(obj["Date"], "%d/%m/%Y").date() == recent_date:  # if date found
+                prev_workout = obj  # assign correct dict (prev workout) to variable
+                break
+
+        workout_str = f"Previous: {prev_workout['Date']}\n"  # start of workout_str
+
+        for key, value in list(prev_workout.items())[
+                          1:-1]:  # iterating over a list of tuples, each containing a key and value
+            if value != "":
+                workout_str = f"{workout_str}{key}: "  # first part of addition
+
+                value = ast.literal_eval(value)  # convert str rep. of list into actual list
+
+                for obj in value:  # for every set of an exercise
+                    workout_str = f"{workout_str}\n({obj[0]}, {obj[1]})"  # second part of addition
+
+                workout_str = f"{workout_str}\n"  # add new line before next exercise
+
+        if prev_workout["Comment"] != "": # if the user wrote a comment for this workout
+            workout_str = f"{workout_str}Comment: {prev_workout['Comment']}" # add comment to the string
+
+        return workout_str
 
     def add_set(self):
         # get input values
@@ -298,12 +340,24 @@ class SessionScreen(Screen):
             # configure pos. feedback
             self.ids.feedback_label.text = "Set added!"
             self.ids.feedback_label.color = 0, 1, 0, 1
-            self.ids.weight_input.text = ""
-            self.ids.reps_input.text = ""
 
             # update set number
             set_nr = int(self.ids.exerset_label.text[-1])  # nr = last character (assumption: <9 sets per exercise)
             self.ids.exerset_label.text = f"{self.current_exercise} - Set {set_nr + 1}"
+
+            # configure inputs
+            self.ids.weight_input.text = ""
+            self.ids.reps_input.text = ""
+
+            if type(self.app.custom_var[1]) == dict:
+                try: # try to get the original values of the next set
+                    self.ids.weight_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[set_nr][0]
+                    self.ids.reps_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[set_nr][1]
+
+                except (IndexError, SyntaxError) as e: # no more sets of this exercise available
+                    print(e)
+                    self.ids.weight_input.hint_text = "Weight in KG"
+                    self.ids.reps_input.hint_text = "Reps"
 
         else:
             # configure neg. feedback
@@ -313,7 +367,7 @@ class SessionScreen(Screen):
     def next_exercise(self):
         new_index = self.exer_list.index(self.current_exercise) + 1  # old index in exer_list + 1
 
-        if new_index <= len(self.exer_list) - 2: # last exercise (NOT comment) is len(list) - 2
+        if new_index <= len(self.exer_list) - 1: # last exercise
             self.sets_to_dict() # write current sets into dict
 
             self.current_exercise = self.exer_list[new_index]  # get new exercise
@@ -323,6 +377,16 @@ class SessionScreen(Screen):
             self.ids.weight_input.text = ""
             self.ids.reps_input.text = ""
             self.ids.feedback_label.text = ""
+
+            if type(self.app.custom_var[1]) == dict:
+                try: # try to show values of first set of next exercise
+                    self.ids.weight_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][0]
+                    self.ids.reps_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][1]
+
+                except (IndexError, SyntaxError) as e:
+                    print(e)
+                    self.ids.weight_input.hint_text = "Weight in KG"
+                    self.ids.reps_input.hint_text = "Reps"
 
         else: # last exercise already reached
             self.ids.feedback_label.text = "This is the final exercise."
@@ -337,19 +401,30 @@ class SessionScreen(Screen):
             self.current_exercise_sets = [] # reset list with current sets
 
     def save_session(self):
-        app = App.get_running_app()  # for get_data_path
+        prev_workouts = []
 
         self.sets_to_dict() # write last sets into dict
         self.workout_dict.update({"Comment": self.ids.comment_input.text.strip()}) # add comment to dict
 
         if self.workout_dict != {"Date": self.current_date}: # sets must have been added
-            with open(app.get_data_path(f"{self.current_workout}.csv"), "r", newline="") as file: # open in read mode
+            with open(self.app.get_data_path(f"{self.current_workout}.csv"), "r", newline="") as file: # open in read mode
                 dictreader = csv.DictReader(file, delimiter=";")
                 fieldnames = dictreader.fieldnames # get fieldnames of csv
+                for workout in dictreader:
+                    if workout["Date"] != self.current_date: # ignore original workout with this date
+                        prev_workouts.append(workout)
 
-            with open(app.get_data_path(f"{self.current_workout}.csv"), "a", newline="") as file: # open in append mode
+            prev_workouts.append(self.workout_dict)
+
+            sorted_workouts = sorted(prev_workouts, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
+
+            with open(self.app.get_data_path(f"{self.current_workout}.csv"), "w", newline="") as file:
                 dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
-                dictwriter.writerow(self.workout_dict) # write values of dict into csv file
+                dictwriter.writeheader()
+                for workout in sorted_workouts:
+                    dictwriter.writerow(workout)
+
+            self.app.custom_var = ""
 
             # switch to home screen
             self.manager.transition.direction = "right"
@@ -368,10 +443,14 @@ class SessionScreen(Screen):
 
 
 class PastScreen(Screen):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
     def on_pre_enter(self, *args):
         # update spinners
-        app = App.get_running_app()
-        workout_list = app.get_workouts()  # list with all the currently saved workouts
+        workout_list = self.app.get_workouts()  # list with all the currently saved workouts
         self.ids.workout_spinner.values = workout_list  # update spinner values on every re-entry
         self.ids.workout_spinner.text = "Select Workout"
         self.ids.date_spinner.text = "Select Date"
@@ -380,14 +459,10 @@ class PastScreen(Screen):
         self.edit_or_show(True) # showing mode by default
         self.ids.main_label.text = ""
         self.ids.feedback_label.text = ""
-        self.ids.edit_box.text = ""
-        self.ids.edit_feedback.text = ""
-
     def get_workouts_str(self, workout_name):
-        app = App.get_running_app()  # for get_data_path
         dict_list = []
 
-        with open(app.get_data_path(f"{workout_name}.csv"), "r") as file:
+        with open(self.app.get_data_path(f"{workout_name}.csv"), "r") as file:
             dictreader = csv.DictReader(file, delimiter=";")
 
             for obj in dictreader:  # for each dictionary (a dict is a workout)
@@ -428,135 +503,25 @@ class PastScreen(Screen):
             self.ids.feedback_label.text = "Please select a Workout."
             self.ids.feedback_label.color = 1, 0, 0, 1
 
-    def show_editor(self):
-        app = App.get_running_app()  # for get_data_path
-        self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
+    def switch_to_editor(self):
+        to_share = [self.ids.workout_spinner.text]
 
-        if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
-            dict_list = []
-            date_list = []
-
-            # get workout dates
-            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
+        if self.ids.date_spinner.text != "Select Date":
+            with open(self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
                 dictreader = csv.DictReader(file, delimiter=";")
-                for obj in dictreader:
-                    dict_list.append(obj)
+                for workout in dictreader:
+                    if workout["Date"] == self.ids.date_spinner.text: # find equivalent workout from csv
+                        to_share.append(workout)
+                        self.app.custom_var = to_share # share workout name and dict through custom_var
+                        break
 
-                sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
-
-                for obj in sorted_list:
-                    date_list.append(obj["Date"])
-
-            self.ids.date_spinner.values = date_list
-            self.edit_or_show(False)  # configure widgets (editing mode)
-
-        else: # no workout selected
-            self.ids.feedback_label.text = "Please select a Workout."
-            self.ids.feedback_label.color = 1, 0, 0, 1
-
-    # checks whether date has been selected
-    def on_date_selected(self):
-        if self.ids.date_spinner.text == "Select Date": # no date selected yet
-            return
+            self.manager.transition.direction = "left"
+            self.manager.current = "session"
 
         else:
-            whole_history = self.get_workouts_str(self.ids.workout_spinner.text) # get str with entire workout history
-            this_workout = re.findall(
-                fr"(Date: {re.escape(self.ids.date_spinner.text)}.+?)(?=Date:|\Z)",
-                whole_history, re.DOTALL) # extract the selected workout
-            str_without_date = re.sub(r"Date: (\d\d/\d\d/\d\d\d\d)", "", this_workout[0]) # remove date
-            self.ids.edit_box.text = str_without_date.strip() # show
+            self.ids.feedback_label.text = "Please select a workout date."
+            self.ids.feedback_label.color = 1, 0, 0, 1
 
-    def parse_new_str(self):
-        app = App.get_running_app()  # for get_data_path
-        new_dict = OrderedDict()
-        new_str = self.ids.edit_box.text # get the edited string
-
-        if new_str == "":
-            self.ids.edit_feedback.text = "Please select a date."
-            self.ids.edit_feedback.color = 1, 0, 0, 1
-            return
-
-        try:
-            new_dict.update({"Date": self.ids.date_spinner.text})
-
-            exer_matches = re.findall(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n?)+)", new_str, re.DOTALL) # find exercises + sets
-            new_str = re.sub(r"(\w+:\s?\n(?:\(\d+\sKG,\s?\d+\sReps\)\n?)+)", "", new_str)
-
-            for match in exer_matches:
-                name_match = re.search(r"(\w+):", match) # find exercise name
-                new_str = re.sub(re.escape(name_match.group(1)), "", new_str) # remove current exercise name
-
-                set_iter = re.finditer(r"\((\d+\sKG),\s?(\d+\sReps)\)", match) # returns iterable
-                set_matches = []
-                for s in set_iter:
-                    set_matches.append([s.group(1), s.group(2)]) # collect weight and reps
-                    new_str = re.sub(re.escape(s.group(0)), "", new_str) # remove current sets
-
-                new_dict.update({name_match.group(1): str(set_matches)})
-
-            comment_match = re.search(r"Comment:\s?(.+)", new_str) # find comment
-            if comment_match != None:
-                new_dict.update({"Comment": comment_match.group(1)})
-            new_str = re.sub(r"Comment:\s?(.+)?", "", new_str)  # remove comment
-
-            # filling missing keys (exercises or comment)
-            with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
-                dictreader = csv.DictReader(file, delimiter=";")
-                fieldnames = dictreader.fieldnames # get fieldnames to compare to exercise keys
-
-            for obj in fieldnames:
-                if obj not in new_dict.keys():
-                    new_dict.update({obj: ''}) # add missing key and empty str as value
-
-            # check for invalid exercise names (that are not part of fieldnames)
-            for key in new_dict.keys():
-                if key not in fieldnames:
-                    self.ids.edit_feedback.text = f"Invalid. Hint:\n'{key}' is not in your original workout."
-                    self.ids.edit_feedback.color = 1, 0, 0, 1
-                    return
-
-            ordered_dict = OrderedDict()
-            for key in fieldnames:
-                ordered_dict[key] = new_dict.get(key, '') # preserve value if exists, else empty string
-
-            new_dict = ordered_dict # replace the original dict with the ordered one
-
-            if new_str.strip() == "": # should be empty if edits are valid
-                self.replace_workout(new_dict) # move on to next method
-
-            else:
-                self.ids.edit_feedback.text = f"Invalid edits. Hint:\n{new_str}"
-                self.ids.edit_feedback.color = 1, 0, 0, 1
-
-        except Exception as e:
-            self.ids.edit_feedback.text = "Invalid."
-            self.ids.edit_feedback.color = 1, 0, 0, 1
-
-    def replace_workout(self, new_dict):
-        app = App.get_running_app()  # for get_data_path
-        workout_list = []
-        fieldnames = []
-
-        with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
-            dictreader = csv.DictReader(file, delimiter=";")
-            fieldnames = dictreader.fieldnames
-            for row in dictreader:
-                workout_list.append(row)
-
-        for obj in workout_list:
-            if obj["Date"] == new_dict["Date"]: # find edited workout (based on date)
-                workout_list[workout_list.index(obj)] = new_dict # replace workout (dict) in list
-                break
-
-        with open(app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "w", newline="") as file:
-            dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
-            dictwriter.writeheader()
-            for obj in workout_list:
-                dictwriter.writerow(obj)
-
-        self.ids.edit_feedback.text = ("Changes saved!")
-        self.ids.edit_feedback.color = 0, 1, 0, 1
 
     def edit_or_show(self, showing_mode):
         if showing_mode: # True as parameter -> showing mode
@@ -565,12 +530,11 @@ class PastScreen(Screen):
             self.ids.main_label.height = self.ids.main_label.texture_size[1]
             self.ids.main_label.size_hint_y = None
 
-            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback, self.ids.date_spinner]:
+            for wid in [self.ids.date_spinner, self.ids.edit_btn]:
                 wid.opacity = 0
                 wid.disabled = True
                 wid.height = 0
                 wid.size_hint_y = None
-
 
         else: # False as parameter -> editing mode
             self.ids.main_label.disabled = True
@@ -578,22 +542,38 @@ class PastScreen(Screen):
             self.ids.main_label.height = 0
             self.ids.main_label.size_hint_y = None
 
-            for wid in [self.ids.edit_box, self.ids.apply_btn, self.ids.edit_feedback, self.ids.date_spinner]:
-                wid.opacity = 1
-                wid.disabled = False
-                wid.height = wid.minimum_height if hasattr(wid, "minimum_height") else 60
-                wid.size_hint_y = None
+            self.ids.date_spinner.opacity = 1
+            self.ids.date_spinner.disabled = False
+            self.ids.date_spinner.height = "50sp"
+            self.ids.date_spinner.size_hint_y = None
+
+            self.ids.edit_btn.opacity = 1
+            self.ids.edit_btn.disabled = False
+            self.ids.edit_btn.height = "80sp"
+            self.ids.edit_btn.size_hint_y = None
+
+            all_dates = []
+            with open(self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
+                dictreader = csv.DictReader(file, delimiter=";")
+                for workout in dictreader:
+                    all_dates.append(workout["Date"]) # get all dates
+
+            sorted_dates = sorted(all_dates, key=lambda x: datetime.strptime(x, "%d/%m/%Y"), reverse=True)
+            self.ids.date_spinner.values = sorted_dates
 
 
 class DelWrkPopup(Popup):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
     # deleting the selected workout
     def del_workout(self):
-        app = App.get_running_app()  # for get_data_path
-
-        os.remove(app.get_data_path(f"{self.workout}.csv")) # delete workout-specific file
+        os.remove(self.app.get_data_path(f"{self.workout}.csv")) # delete workout-specific file
 
         self.workout_list.remove(self.workout) # remove workout name from workout_list
-        with open(app.get_data_path("all_workouts.csv"), "w", newline="") as file: # open in writing mode to overwrite
+        with open(self.app.get_data_path("all_workouts.csv"), "w", newline="") as file: # open in writing mode to overwrite
             writer = csv.writer(file)
             writer.writerow(["Workouts"]) # write header
             for obj in self.workout_list:

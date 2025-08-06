@@ -162,7 +162,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Edit your past workouts:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press 'Edit'\n    4. Select a date\n    5. Edit the workout (focus on correct formatting)\n    6. Press 'Apply Changes'\n"
+                text: "-> Edit your past workouts:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press 'Edit'\n    4. Select a date\n    5. Edit the workout\n    6. Save"
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -403,6 +403,7 @@
             pos_hint: {"center_x": 0.88, "center_y": 0.94}
 
         Button:
+            id: prev_btn
             text: "Previous Workout"
             font_size: root.width * 0.02
             italic: True
@@ -545,54 +546,29 @@
                 pos_hint: {"center_x": 0.5}
                 height: "60sp"
                 on_press:
-                    root.show_editor()
-                    font_size: root.width * 0.04
+                    if root.ids.workout_spinner.text != "Select Workout": root.edit_or_show(False)
 
             Spinner:
                 id: date_spinner
                 opacity: 0
                 disabled: True
                 font_size: root.width * 0.02
-                size_hint_x: 0.6
+                size_hint_x: 0.5
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
                 height: "50sp"
-                on_text: root.on_date_selected()
-
-            TextInput:
-                id: edit_box
-                opacity: 0
-                disabled: True
-                font_size: root.width * 0.025
-                text_size: self.width, None
-                size_hint_x: 1
-                size_hint_y: None
-                height: self.minimum_height
-                on_text: self.height = self.minimum_height
-                multiline: True
-
-            Label:
-                id: edit_feedback
-                opacity: 0
-                disabled: True
-                font_size: root.width * 0.02
-                bold: True
-                size_hint_y: None
-                halign: "center"
-                valign: "top"
-                height: "45sp"
 
             Button:
-                id: apply_btn
+                id: edit_btn
                 opacity: 0
                 disabled: True
-                text: "Apply Changes"
+                text: "Start Editing"
                 font_size: root.width * 0.023
-                size_hint_x: 0.6
+                size_hint_x: 0.7
                 size_hint_y: None
                 pos_hint: {"center_x": 0.5}
-                height: "60sp"
-                on_press: root.parse_new_str()
+                height: "80sp"
+                on_press: root.switch_to_editor()
 
             Label:
                 id: main_label
