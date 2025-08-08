@@ -15,7 +15,7 @@ import re
 from collections import OrderedDict
 
 
-__version__ = '1.2.4'
+__version__ = '1.2.5'
 
 
 class HomeScreen(Screen):
@@ -271,16 +271,19 @@ class SessionScreen(Screen):
         # reset widgets
         self.ids.weight_input.text = ""
         self.ids.reps_input.text = ""
+        self.ids.weight_input.hint_text = "Weight in KG"
+        self.ids.reps_input.hint_text = "Reps"
         self.ids.feedback_label.text = ""
         self.ids.comment_input.text = ""
+        self.ids.comment_input.hint_text = "Comment"
         self.ids.prev_btn.opacity = 1
         self.ids.prev_btn.disabled = False
 
         # for editing mode
         if type(self.app.custom_var[1]) == dict:
-            self.ids.weight_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][0]
-            self.ids.reps_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][1]
-            self.ids.comment_input.hint_text = self.app.custom_var[1]["Comment"]
+            self.ids.weight_input.text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][0].replace(" KG", "")
+            self.ids.reps_input.text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][1]. replace(" Reps", "")
+            self.ids.comment_input.text = self.app.custom_var[1]["Comment"]
             # hide prev_btn in editing mode
             self.ids.prev_btn.opacity = 0
             self.ids.prev_btn.disabled = True
@@ -351,13 +354,12 @@ class SessionScreen(Screen):
 
             if type(self.app.custom_var[1]) == dict:
                 try: # try to get the original values of the next set
-                    self.ids.weight_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[set_nr][0]
-                    self.ids.reps_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[set_nr][1]
+                    self.ids.weight_input.text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[set_nr][0].replace(" KG", "")
+                    self.ids.reps_input.text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[set_nr][1].replace(" Reps", "")
 
                 except (IndexError, SyntaxError) as e: # no more sets of this exercise available
                     print(e)
-                    self.ids.weight_input.hint_text = "Weight in KG"
-                    self.ids.reps_input.hint_text = "Reps"
+                    pass
 
         else:
             # configure neg. feedback
@@ -380,13 +382,12 @@ class SessionScreen(Screen):
 
             if type(self.app.custom_var[1]) == dict:
                 try: # try to show values of first set of next exercise
-                    self.ids.weight_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][0]
-                    self.ids.reps_input.hint_text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][1]
+                    self.ids.weight_input.text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][0].replace(" KG", "")
+                    self.ids.reps_input.text = ast.literal_eval(self.app.custom_var[1][self.current_exercise])[0][1].replace(" Reps", "")
 
                 except (IndexError, SyntaxError) as e:
                     print(e)
-                    self.ids.weight_input.hint_text = "Weight in KG"
-                    self.ids.reps_input.hint_text = "Reps"
+                    pass
 
         else: # last exercise already reached
             self.ids.feedback_label.text = "This is the final exercise."
@@ -472,23 +473,28 @@ class PastScreen(Screen):
 
         workout_history = "" # string for entire workout history
 
-        for obj in sorted_list: # for each dictionary (a dict is a workout)
+        if self.ids.debug_switch.active == False: # regular mode
+            for obj in sorted_list: # for each dictionary (a dict is a workout)
 
-            workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
+                workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
 
-            for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
-                if value != "" and key != "Comment":
-                    workout_history = f"{workout_history}\n{key}: "  # first part of addition
+                for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
+                    if value != "" and key != "Comment":
+                        workout_history = f"{workout_history}\n{key}: "  # first part of addition
 
-                    value = ast.literal_eval(value)  # convert str rep. of list into actual list
+                        value = ast.literal_eval(value)  # convert str rep. of list into actual list
 
-                    for i in value:  # for every set of an exercise
-                        workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
+                        for i in value:  # for every set of an exercise
+                            workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
 
-                elif key == "Comment" and value != "": # if the user wrote a comment for this workout
-                    workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
+                    elif key == "Comment" and value != "": # if the user wrote a comment for this workout
+                        workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
 
-            workout_history = f"{workout_history}\n\n"
+                workout_history = f"{workout_history}\n\n"
+
+        else: # debug mode
+            for obj in sorted_list:
+                workout_history = f"{workout_history}{obj}\n\n"
 
         return workout_history
 

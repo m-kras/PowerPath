@@ -53,12 +53,13 @@
 
         Label:
             text: "It's about Progress"
+            font_name: "data/Montserrat-MediumItalic"
             font_size: root.width * 0.04
             italic: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.78}
+            pos_hint: {"center_x": 0.5, "center_y": 0.8}
 
         Button:
-            text: "Manage Workouts"
+            text: "Manage Plans"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.57}
@@ -122,7 +123,17 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Add a new workout plan:\n    1. Go to: 'Manage Workouts' > 'Add Workout Plan'\n    2. Enter a workout name and your exercises\n    3. Save"
+                text: "-> Add a new workout plan:\n    1. Go to: 'Manage Workouts' > 'Add Plan'\n    2. Enter a workout name and your exercises\n    3. Save"
+                font_size: root.width * 0.03
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+            Label:
+                text: "-> Delete a workout plan:\n     1. Go to: 'Manage Workouts' > 'Delete Plan'\n     2. Select a plan to delete\n     3. Confirm"
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -142,17 +153,7 @@
                 size_hint_y: None
 
             Label:
-                text: "      Note: You can delete your plans under 'Delete Workout'"
-                font_size: root.width * 0.025
-                text_size: self.width, None
-                halign: "left"
-                valign: "top"
-                height: self.texture_size[1]
-                size_hint_x: 1
-                size_hint_y: None
-
-            Label:
-                text: "-> Check your progress:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press ’Show'"
+                text: "-> Check your progress:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. (Optional: Switch on 'Debug Mode' to see text in original csv format)\n    4. Press ’Show'"
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -162,7 +163,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Edit your past workouts:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press 'Edit'\n    4. Select a date\n    5. Edit the workout\n    6. Save"
+                text: "-> Edit your past workouts:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press 'Edit'\n    4. Select a date\n    5. Edit the workout (Confirm the weight/rep values by adding the set or change the values if needed)\n    6. Save"
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -184,12 +185,12 @@
     FloatLayout:
 
         Label:
-            text: "Manage Workouts"
+            text: "Manage Plans"
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
-            text: "Add Workout Plan"
+            text: "Add Plan"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.55}
@@ -198,7 +199,7 @@
                 app.root.current = "addwrk"
 
         Button:
-            text: "Delete Workout"
+            text: "Delete Plan"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
@@ -228,7 +229,7 @@
     FloatLayout:
 
         Label:
-            text: "Add Workout Plan"
+            text: "Add Plan"
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
@@ -290,7 +291,7 @@
     FloatLayout:
 
         Label:
-            text: "Delete Workout"
+            text: "Delete Plan"
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
@@ -455,7 +456,7 @@
 
         TextInput:
             id: comment_input
-            hint_text: "Workout Comment"
+            hint_text: "Comment"
             font_name: "data/Montserrat-MediumItalic.ttf"
             font_size: root.width * 0.03
             size_hint: 0.5, 0.04
@@ -508,6 +509,22 @@
                 on_press:
                     root.manager.transition.direction = "right"
                     app.root.current = "home"
+
+            Label:
+                text: "Debug Mode"
+                font_size: root.width * 0.02
+                size_hint_x: 0.3
+                size_hint_y: None
+                pos_hint: {"center_x": 0.9}
+                height: "15sp"
+
+            Switch:
+                id: debug_switch
+                active: False
+                size_hint_x: 0.2
+                size_hint_y: None
+                pos_hint: {"center_x": 0.9}
+                height: "20sp"
 
             Label:
                 text: "Past Workouts"
