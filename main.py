@@ -15,7 +15,7 @@ import re
 from collections import OrderedDict
 
 
-__version__ = '1.2.5'
+__version__ = '1.2.6'
 
 
 class HomeScreen(Screen):
@@ -458,10 +458,11 @@ class PastScreen(Screen):
 
         # configure widgets (hide/show/clear text)
         self.edit_or_show(True) # showing mode by default
-        self.ids.main_label.text = ""
+        self.ids.main_rv.data = ""
         self.ids.feedback_label.text = ""
-    def get_workouts_str(self, workout_name):
+    def get_str_list(self, workout_name):
         dict_list = []
+        result = []
 
         with open(self.app.get_data_path(f"{workout_name}.csv"), "r") as file:
             dictreader = csv.DictReader(file, delimiter=";")
@@ -471,39 +472,37 @@ class PastScreen(Screen):
 
         sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
 
-        workout_history = "" # string for entire workout history
 
-        if self.ids.debug_switch.active == False: # regular mode
-            for obj in sorted_list: # for each dictionary (a dict is a workout)
+        for obj in sorted_list: # for each dictionary (a dict is a workout)
+            entry_str = ""  # string for the current entry
 
-                workout_history = f"{workout_history}\n\nDate: {obj['Date']}\n\n"  # add date of workout
+            entry_str = f"Date: {obj['Date']}\n\n"  # add date of workout
 
-                for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
-                    if value != "" and key != "Comment":
-                        workout_history = f"{workout_history}\n{key}: "  # first part of addition
+            for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
+                if value != "" and key != "Comment":
+                    entry_str = f"{entry_str}\n{key}: "  # first part of addition
 
-                        value = ast.literal_eval(value)  # convert str rep. of list into actual list
+                    value = ast.literal_eval(value)  # convert str rep. of list into actual list
 
-                        for i in value:  # for every set of an exercise
-                            workout_history = f"{workout_history}\n({i[0]}, {i[1]})"  # second part of addition
+                    for i in value:  # for every set of an exercise
+                        entry_str = f"{entry_str}\n({i[0]}, {i[1]})"  # second part of addition
 
-                    elif key == "Comment" and value != "": # if the user wrote a comment for this workout
-                        workout_history = f"{workout_history}\nComment: {obj['Comment']}" # add comment to the string
+                elif key == "Comment" and value != "": # if the user wrote a comment for this workout
+                    entry_str = f"{entry_str}\nComment: {obj['Comment']}" # add comment to the string
 
-                workout_history = f"{workout_history}\n\n"
+            entry_str = f"{entry_str}\n\n\n"
 
-        else: # debug mode
-            for obj in sorted_list:
-                workout_history = f"{workout_history}{obj}\n\n"
+            result.append(entry_str)
 
-        return workout_history
+        return result
 
     def show_past_workouts(self):
         self.ids.feedback_label.text = ""  # clear feedback_label if button pressed
         self.edit_or_show(True)  # configure widgets (showing mode)
 
         if self.ids.workout_spinner.text != "Select Workout":  # workout must be selected
-            self.ids.main_label.text = self.get_workouts_str(self.ids.workout_spinner.text)
+            self.ids.main_rv.data = [{"text": workout_str} for workout_str
+                                     in self.get_str_list(self.ids.workout_spinner.text)] # update recycleview
 
         else: # no workout selected
             self.ids.feedback_label.text = "Please select a Workout."
@@ -531,11 +530,6 @@ class PastScreen(Screen):
 
     def edit_or_show(self, showing_mode):
         if showing_mode: # True as parameter -> showing mode
-            self.ids.main_label.disabled = False
-            self.ids.main_label.opacity = 1
-            self.ids.main_label.height = self.ids.main_label.texture_size[1]
-            self.ids.main_label.size_hint_y = None
-
             for wid in [self.ids.date_spinner, self.ids.edit_btn]:
                 wid.opacity = 0
                 wid.disabled = True
@@ -543,10 +537,7 @@ class PastScreen(Screen):
                 wid.size_hint_y = None
 
         else: # False as parameter -> editing mode
-            self.ids.main_label.disabled = True
-            self.ids.main_label.opacity = 0
-            self.ids.main_label.height = 0
-            self.ids.main_label.size_hint_y = None
+            self.ids.main_rv.data = ""
 
             self.ids.date_spinner.opacity = 1
             self.ids.date_spinner.disabled = False

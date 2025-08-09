@@ -488,114 +488,106 @@
             pos: self.pos
             size: self.size
 
-    ScrollView:
-        BoxLayout:
+    BoxLayout:
 
-            orientation: "vertical"
+        orientation: "vertical"
+        width: root.width
+        spacing: "30sp"
+        padding: "30sp"
+
+        Button:
+            text: "Back"
+            font_size: root.width * 0.03
+            size_hint_x: 0.3
             size_hint_y: None
-            size_hint_x: None
-            height: self.minimum_height
-            width: root.width
-            spacing: "30sp"
-            padding: "30sp"
+            pos_hint: {"x": 0.01}
+            height: "45sp"
+            on_press:
+                root.manager.transition.direction = "right"
+                app.root.current = "home"
 
-            Button:
-                text: "Back"
-                font_size: root.width * 0.03
-                size_hint_x: 0.3
-                size_hint_y: None
-                pos_hint: {"x": 0.01}
-                height: "45sp"
-                on_press:
-                    root.manager.transition.direction = "right"
-                    app.root.current = "home"
+        Label:
+            text: "Past Workouts"
+            font_size: root.width * 0.07
+            size_hint_y: None
 
-            Label:
-                text: "Debug Mode"
-                font_size: root.width * 0.02
-                size_hint_x: 0.3
-                size_hint_y: None
-                pos_hint: {"center_x": 0.9}
-                height: "15sp"
+        Spinner:
+            id: workout_spinner
+            font_size: root.width * 0.04
+            size_hint_x: 0.7
+            size_hint_y: None
+            pos_hint: {"center_x": 0.5}
+            height: "60sp"
 
-            Switch:
-                id: debug_switch
-                active: False
-                size_hint_x: 0.2
-                size_hint_y: None
-                pos_hint: {"center_x": 0.9}
-                height: "20sp"
+        Label:
+            id: feedback_label
+            font_size: root.width * 0.03
+            bold: True
+            size_hint_y: None
+            height: "40sp"
 
-            Label:
-                text: "Past Workouts"
-                font_size: root.width * 0.07
-                size_hint_y: None
+        Button:
+            text: "Show"
+            font_size: root.width * 0.04
+            size_hint_x: 0.5
+            size_hint_y: None
+            pos_hint: {"center_x": 0.5}
+            height: "60sp"
+            on_press: root.show_past_workouts()
 
-            Spinner:
-                id: workout_spinner
-                font_size: root.width * 0.04
-                size_hint_x: 0.7
-                size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "60sp"
+        Button:
+            text: "Edit"
+            font_size: root.width * 0.04
+            size_hint_x: 0.5
+            size_hint_y: None
+            pos_hint: {"center_x": 0.5}
+            height: "60sp"
+            on_press:
+                if root.ids.workout_spinner.text != "Select Workout": root.edit_or_show(False)
 
-            Label:
-                id: feedback_label
-                font_size: root.width * 0.03
-                bold: True
-                size_hint_y: None
-                height: "40sp"
+        Spinner:
+            id: date_spinner
+            opacity: 0
+            disabled: True
+            font_size: root.width * 0.02
+            size_hint_x: 0.5
+            size_hint_y: None
+            pos_hint: {"center_x": 0.5}
+            height: "50sp"
 
-            Button:
-                text: "Show"
-                font_size: root.width * 0.04
-                size_hint_x: 0.5
-                size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "60sp"
-                on_press: root.show_past_workouts()
+        Button:
+            id: edit_btn
+            opacity: 0
+            disabled: True
+            text: "Start Editing"
+            font_size: root.width * 0.023
+            size_hint_x: 0.7
+            size_hint_y: None
+            pos_hint: {"center_x": 0.5}
+            height: "80sp"
+            on_press: root.switch_to_editor()
 
-            Button:
-                text: "Edit"
-                font_size: root.width * 0.04
-                size_hint_x: 0.5
-                size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "60sp"
-                on_press:
-                    if root.ids.workout_spinner.text != "Select Workout": root.edit_or_show(False)
+        RecycleView:
+            id: main_rv
+            size_hint_y: 1
+            viewclass: "WorkoutLabel"
 
-            Spinner:
-                id: date_spinner
-                opacity: 0
-                disabled: True
-                font_size: root.width * 0.02
-                size_hint_x: 0.5
+            RecycleBoxLayout:
+                default_size: None, dp(40)
+                default_size_hint: 1, None
                 size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "50sp"
+                height: self.minimum_height
+                orientation: 'vertical'
+                spacing: dp(10)
 
-            Button:
-                id: edit_btn
-                opacity: 0
-                disabled: True
-                text: "Start Editing"
-                font_size: root.width * 0.023
-                size_hint_x: 0.7
-                size_hint_y: None
-                pos_hint: {"center_x": 0.5}
-                height: "80sp"
-                on_press: root.switch_to_editor()
-
-            Label:
-                id: main_label
-                font_size: root.width * 0.04
-                halign: "center"
-                valign: "top"
-                text_size: self.width, None
-                height: self.texture_size[1]
-                size_hint_x: 1
-                size_hint_y: None
+<WorkoutLabel@Label>:
+    size_hint_y: None
+    text_size: self.width, None
+    font_size: root.width * 0.032
+    height: self.texture_size[1] + dp(10)
+    halign: "center"
+    valign: "middle"
+    padding: dp(10), dp(10)
 
 
 <CancelPopup@PopUp>:
