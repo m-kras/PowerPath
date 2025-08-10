@@ -30,7 +30,7 @@ class ManageScreen(Screen):
     pass
 
 
-class AddWrkScreen(Screen):
+class AddPlanScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -91,18 +91,18 @@ class AddWrkScreen(Screen):
             self.ids.exercise_input.text = ""
 
     # save the workout
-    def save_workout(self):
-        name = self.ids.name_input.text # get workout name
+    def save_plan(self):
+        name = self.ids.name_input.text # get workout plan name
 
-        # creation of {workout name}.csv
+        # creation of {plan's name}.csv
         if len(self.added_exercises) > 0: # exercises must have been added
-            if name != "": # workout must have a name
-                if os.path.isfile(self.app.get_data_path(f"{name.strip()}.csv")) is False: # check whether workout already exists
+            if name != "": # must have a name
+                if os.path.isfile(self.app.get_data_path(f"{name.strip()}.csv")) is False: # check whether plan already exists
 
                     self.added_exercises.insert(0, "Date") # header: Date, Ex1, Ex2, ...
                     self.added_exercises.append("Comment") # last key should be comment
 
-                    # create workout-specific csv file
+                    # create workout (plan)-specific csv file
                     with open(self.app.get_data_path(f"{name}.csv"), "w", newline="") as file:
                         writer = csv.DictWriter(file, fieldnames=self.added_exercises, delimiter=";")
                         writer.writeheader() # write header (Date, Ex1, Ex2, ..., Comment)
@@ -148,30 +148,29 @@ class AddWrkScreen(Screen):
             self.manager.current = "manage"
 
 
-class DelWrkScreen(Screen):
+class DelPlanScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.app = App.get_running_app()
 
     def on_pre_enter(self):
-        self.workout_list = self.app.get_workouts()  # list with all the currently saved workouts
+        self.plan_list = self.app.get_workouts()  # list with all the currently saved workouts
 
-        self.ids.delwrk_spinner.values = self.workout_list  # update spinner values on every re-entry
-        self.ids.delwrk_spinner.text = "Select Workout"
+        self.ids.delplan_spinner.values = self.plan_list  # update spinner values on every re-entry
+        self.ids.delplan_spinner.text = "Select Plan"
 
     # open popup if deletion button pressed
     def open_popup(self):
-        if self.ids.delwrk_spinner.text != "Select Workout": # must be selected
-            popup = DelWrkPopup()
-            popup.workout_list = self.workout_list # pass on workout_list
-            popup.workout = self.ids.delwrk_spinner.text  # pass on the chosen exercise
+        if self.ids.delplan_spinner.text != "Select Plan": # must be selected
+            popup = DelPlanPopup()
+            popup.plan_list = self.plan_list # pass on plan_list
+            popup.plan = self.ids.delplan_spinner.text  # pass on the chosen exercise
             popup.open()
 
-        else: # if no workout selected
-            self.ids.feedback_label.text = "No workout selected."
+        else: # if no plan selected
+            self.ids.feedback_label.text = "No plan selected."
             self.ids.feedback_label.color = 1, 0, 0, 1
-
 
 
 class StartSessionScreen(Screen):
@@ -407,7 +406,7 @@ class SessionScreen(Screen):
         self.sets_to_dict() # write last sets into dict
         self.workout_dict.update({"Comment": self.ids.comment_input.text.strip()}) # add comment to dict
 
-        if self.workout_dict != {"Date": self.current_date}: # sets must have been added
+        if self.workout_dict != {"Date": self.current_date, "Comment": self.ids.comment_input.text.strip()}: # sets must have been added
             with open(self.app.get_data_path(f"{self.current_workout}.csv"), "r", newline="") as file: # open in read mode
                 dictreader = csv.DictReader(file, delimiter=";")
                 fieldnames = dictreader.fieldnames # get fieldnames of csv
@@ -527,6 +526,17 @@ class PastScreen(Screen):
             self.ids.feedback_label.text = "Please select a workout date."
             self.ids.feedback_label.color = 1, 0, 0, 1
 
+    def open_delwrk_popup(self):
+        if self.ids.date_spinner.text != "Select Date":
+            popup = DelWrkPopup()
+            popup.workout_name = self.ids.workout_spinner.text
+            popup.workout_date = self.ids.date_spinner.text
+            popup.open()
+
+        else:
+            self.ids.feedback_label.text = "Please select a workout date."
+            self.ids.feedback_label.color = 1, 0, 0, 1
+
 
     def edit_or_show(self, showing_mode):
         if showing_mode: # True as parameter -> showing mode
@@ -536,7 +546,7 @@ class PastScreen(Screen):
             self.ids.main_rv.size_hint_y = 0.5
             self.ids.main_rv.height = self.height * 0.5
 
-            for wid in [self.ids.date_spinner, self.ids.edit_btn]:
+            for wid in [self.ids.date_spinner, self.ids.edit_btn, self.ids.del_btn]:
                 wid.opacity = 0
                 wid.disabled = True
                 wid.height = 0
@@ -550,13 +560,18 @@ class PastScreen(Screen):
 
             self.ids.date_spinner.opacity = 1
             self.ids.date_spinner.disabled = False
-            self.ids.date_spinner.height = "50sp"
+            self.ids.date_spinner.height = self.height * 0.07
             self.ids.date_spinner.size_hint_y = None
 
             self.ids.edit_btn.opacity = 1
             self.ids.edit_btn.disabled = False
-            self.ids.edit_btn.height = "80sp"
+            self.ids.edit_btn.height = self.height * 0.1
             self.ids.edit_btn.size_hint_y = None
+
+            self.ids.del_btn.opacity = 1
+            self.ids.del_btn.disabled = False
+            self.ids.del_btn.height = self.height * 0.1
+            self.ids.del_btn.size_hint_y = None
 
             all_dates = []
             with open(self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r") as file:
@@ -567,23 +582,51 @@ class PastScreen(Screen):
             sorted_dates = sorted(all_dates, key=lambda x: datetime.strptime(x, "%d/%m/%Y"), reverse=True)
             self.ids.date_spinner.values = sorted_dates
 
-
 class DelWrkPopup(Popup):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.app = App.get_running_app()
+    def on_pre_open(self):
+        self.ids.wrk_date_label.text = f"{self.workout_name} from {self.workout_date}"
 
-    # deleting the selected workout
     def del_workout(self):
-        os.remove(self.app.get_data_path(f"{self.workout}.csv")) # delete workout-specific file
+        dict_list = []
 
-        self.workout_list.remove(self.workout) # remove workout name from workout_list
+        with open(self.app.get_data_path(f"{self.workout_name}.csv"), "r") as file:
+            dictreader = csv.DictReader(file, delimiter=";")
+            fieldnames = dictreader.fieldnames
+
+            for workout in dictreader:
+                if workout["Date"] != self.workout_date: # append every workout except for the one to be deleted
+                    dict_list.append(obj)
+
+        sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
+
+        with open(self.app.get_data_path(f"{self.workout_name}.csv"), "w", newline="") as file:
+            dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
+            dictwriter.writeheader()
+
+            for workout in sorted_list:
+                dictwriter.writerow(workout)
+
+
+class DelPlanPopup(Popup):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
+    # deleting the selected workout plan
+    def del_plan(self):
+        os.remove(self.app.get_data_path(f"{self.plan}.csv")) # delete workout(plan)-specific file
+
+        self.plan_list.remove(self.plan) # remove plan's name from plan_list
         with open(self.app.get_data_path("all_workouts.csv"), "w", newline="") as file: # open in writing mode to overwrite
             writer = csv.writer(file)
             writer.writerow(["Workouts"]) # write header
-            for obj in self.workout_list:
-                writer.writerow([obj]) # add every remaining workout
+            for obj in self.plan_list:
+                writer.writerow([obj]) # add every remaining workout plan
 
 
 class PrevPopup(Popup):
@@ -615,8 +658,8 @@ class Powerpath(App):
         sm.add_widget(HowToScreen(name="howto"))
         sm.add_widget(PastScreen(name="past"))
         sm.add_widget(ManageScreen(name="manage"))
-        sm.add_widget(AddWrkScreen(name="addwrk"))
-        sm.add_widget(DelWrkScreen(name="delwrk"))
+        sm.add_widget(AddPlanScreen(name="addplan"))
+        sm.add_widget(DelPlanScreen(name="delplan"))
         sm.add_widget(StartSessionScreen(name="startsession"))
         sm.add_widget(SessionScreen(name="session"))
 
@@ -637,7 +680,7 @@ class Powerpath(App):
 
     def check_pressed_button(self, window, key, *args):
         if key == 27: # 27 == android back button
-            self.open_warning() # open warning_popup
+            self.open_warning()
             return True # prevent closing of the app (default behaviour)
         else: # other button pressed
             return False
@@ -646,7 +689,7 @@ class Powerpath(App):
         popup = WarningPopup()
         popup.open()
 
-    # return a list with all the currently saved workouts
+    # return a list with all the currently saved workout plans
     def get_workouts(self):
 
         self.workout_list = []
@@ -658,9 +701,8 @@ class Powerpath(App):
                 for obj in line:  # iterating over each of the lists to get individual strings
                     self.workout_list.append(obj)  # append all available exercises to list
 
-        return self.workout_list  # return list
+        return self.workout_list
 
 
-# running the app
 if __name__ == "__main__":
     Powerpath().run()

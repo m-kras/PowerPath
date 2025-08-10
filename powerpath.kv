@@ -196,7 +196,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.55}
             on_press:
                 root.manager.transition.direction = "left"
-                app.root.current = "addwrk"
+                app.root.current = "addplan"
 
         Button:
             text: "Delete Plan"
@@ -205,7 +205,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
             on_press:
                 root.manager.transition.direction = "left"
-                app.root.current = "delwrk"
+                app.root.current = "delplan"
 
         Button:
             text: "Back"
@@ -217,7 +217,7 @@
                 app.root.current = "home"
 
 
-<AddWrkScreen>:
+<AddPlanScreen>:
 
     canvas.before:
         Color:
@@ -235,7 +235,7 @@
 
         TextInput:
             id: name_input
-            hint_text: "Workout Name"
+            hint_text: "Name of your Plan"
             font_size: root.width * 0.045
             bold: True
             size_hint: 0.7, 0.065
@@ -261,14 +261,14 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.38}
 
         Button:
-            text: "Save Workout"
+            text: "Save Plan"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
             on_press:
-                root.save_workout()
+                root.save_plan()
 
         Button:
             text: "Cancel"
@@ -279,7 +279,7 @@
                 root.open_popup()
 
 
-<DelWrkScreen>:
+<DelPlanScreen>:
 
     canvas.before:
         Color:
@@ -296,8 +296,8 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Spinner:
-            id: delwrk_spinner
-            text: "Select Workout"
+            id: delplan_spinner
+            text: "Select Plan"
             font_size: root.width * 0.04
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
@@ -526,7 +526,7 @@
             on_press: root.show_past_workouts()
 
         Button:
-            text: "Edit"
+            text: "Make Changes"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
@@ -539,19 +539,31 @@
             disabled: True
             font_size: root.width * 0.02
             size_hint: 0.4, 0.07
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            pos_hint: {"center_x": 0.5, "center_y": 0.47}
 
         Button:
             id: edit_btn
             opacity: 0
             disabled: True
-            text: "Start Editing"
-            font_size: root.width * 0.023
-            size_hint: 0.45, 0.09
-            pos_hint: {"center_x": 0.5, "center_y": 0.43}
+            text: "Edit"
+            font_size: root.width * 0.02
+            size_hint: 0.3, 0.04
+            pos_hint: {"center_x": 0.5, "center_y": 0.35}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
             on_press: root.switch_to_editor()
+
+        Button:
+            id: del_btn
+            opacity: 0
+            disabled: True
+            text: "Delete"
+            font_size: root.width * 0.02
+            size_hint: 0.3, 0.04
+            pos_hint: {"center_x": 0.5, "center_y": 0.23}
+            background_color: 1, 0.3, 0, 1
+            background_normal: ""
+            on_press: root.open_delwrk_popup()
 
         RecycleView:
             id: main_rv
@@ -620,7 +632,51 @@
 
 
 <DelWrkPopup@Popup>:
-    title: "Delete Exercise"
+    title: "Delete Workout"
+    size_hint: 0.8, 0.7
+    auto_dismiss: False
+
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: "Delete this workout?"
+            font_size: root.width * 0.05
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Label:
+            id: wrk_date_label
+            font_size: root.width * 0.03
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+        Button:
+            text: "No"
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            on_press: root.dismiss()
+
+        Button:
+            text: "Yes"
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_press:
+                root.del_workout()
+                root.dismiss()
+                app.root.transition.direction = "right"
+                app.root.current = "home"
+
+
+<DelPlanPopup@Popup>:
+    title: "Delete Plan"
     size_hint: 0.8, 0.7
     auto_dismiss: False
 
@@ -657,7 +713,7 @@
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             on_press:
-                root.del_workout()
+                root.del_plan()
                 root.dismiss()
                 app.root.transition.direction = "right"
                 app.root.current = "home"
