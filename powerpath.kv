@@ -153,7 +153,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Check your progress:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. (Optional: Switch on 'Debug Mode' to see text in original csv format)\n    4. Press ’Show'"
+                text: "-> Check your progress:\n    1. Go to: 'Past Workouts'\n    2. Select one of your saved workouts\n    3. Press 'Show'"
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -488,20 +488,13 @@
             pos: self.pos
             size: self.size
 
-    BoxLayout:
-
-        orientation: "vertical"
-        width: root.width
-        spacing: "30sp"
-        padding: "30sp"
+    FloatLayout:
 
         Button:
             text: "Back"
             font_size: root.width * 0.03
-            size_hint_x: 0.3
-            size_hint_y: None
-            pos_hint: {"x": 0.01}
-            height: "45sp"
+            size_hint: 0.25, 0.04
+            pos_hint: {"center_x": 0.14, "center_y": 0.92}
             on_press:
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
@@ -509,39 +502,34 @@
         Label:
             text: "Past Workouts"
             font_size: root.width * 0.07
-            size_hint_y: None
+            size_hint: 0.4, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.86}
 
         Spinner:
             id: workout_spinner
             font_size: root.width * 0.04
-            size_hint_x: 0.7
-            size_hint_y: None
-            pos_hint: {"center_x": 0.5}
-            height: "60sp"
+            size_hint: 0.5, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.78}
 
         Label:
             id: feedback_label
             font_size: root.width * 0.03
             bold: True
-            size_hint_y: None
-            height: "40sp"
+            size_hint: 0.6, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.72}
 
         Button:
             text: "Show"
             font_size: root.width * 0.04
-            size_hint_x: 0.5
-            size_hint_y: None
-            pos_hint: {"center_x": 0.5}
-            height: "60sp"
+            size_hint: 0.5, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.65}
             on_press: root.show_past_workouts()
 
         Button:
             text: "Edit"
             font_size: root.width * 0.04
-            size_hint_x: 0.5
-            size_hint_y: None
-            pos_hint: {"center_x": 0.5}
-            height: "60sp"
+            size_hint: 0.5, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.58}
             on_press:
                 if root.ids.workout_spinner.text != "Select Workout": root.edit_or_show(False)
 
@@ -550,10 +538,8 @@
             opacity: 0
             disabled: True
             font_size: root.width * 0.02
-            size_hint_x: 0.5
-            size_hint_y: None
-            pos_hint: {"center_x": 0.5}
-            height: "50sp"
+            size_hint: 0.4, 0.07
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
         Button:
             id: edit_btn
@@ -561,15 +547,15 @@
             disabled: True
             text: "Start Editing"
             font_size: root.width * 0.023
-            size_hint_x: 0.7
-            size_hint_y: None
-            pos_hint: {"center_x": 0.5}
-            height: "80sp"
+            size_hint: 0.45, 0.09
+            pos_hint: {"center_x": 0.5, "center_y": 0.43}
+            background_color: 0, 0.5, 0.7, 1
+            background_normal: ""
             on_press: root.switch_to_editor()
 
         RecycleView:
             id: main_rv
-            size_hint_y: 1
+            size_hint_y: 0.5
             viewclass: "WorkoutLabel"
 
             RecycleBoxLayout:
@@ -583,7 +569,8 @@
 <WorkoutLabel@Label>:
     size_hint_y: None
     text_size: self.width, None
-    font_size: root.width * 0.032
+    font_name: "data/Parkinsans-Bold.ttf"
+    font_size: root.width * 0.027
     height: self.texture_size[1] + dp(10)
     halign: "center"
     valign: "middle"

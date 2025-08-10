@@ -15,7 +15,7 @@ import re
 from collections import OrderedDict
 
 
-__version__ = '1.2.6'
+__version__ = '1.2.7'
 
 
 class HomeScreen(Screen):
@@ -530,6 +530,12 @@ class PastScreen(Screen):
 
     def edit_or_show(self, showing_mode):
         if showing_mode: # True as parameter -> showing mode
+
+            self.ids.main_rv.opacity = 1
+            self.ids.main_rv.disabled = False
+            self.ids.main_rv.size_hint_y = 0.5
+            self.ids.main_rv.height = self.height * 0.5
+
             for wid in [self.ids.date_spinner, self.ids.edit_btn]:
                 wid.opacity = 0
                 wid.disabled = True
@@ -537,7 +543,10 @@ class PastScreen(Screen):
                 wid.size_hint_y = None
 
         else: # False as parameter -> editing mode
-            self.ids.main_rv.data = ""
+            self.ids.main_rv.opacity = 0
+            self.ids.main_rv.disabled = True
+            self.ids.main_rv.size_hint_y = None
+            self.ids.main_rv.height = 0
 
             self.ids.date_spinner.opacity = 1
             self.ids.date_spinner.disabled = False
