@@ -599,7 +599,7 @@ class DelWrkPopup(Popup):
 
             for workout in dictreader:
                 if workout["Date"] != self.workout_date: # append every workout except for the one to be deleted
-                    dict_list.append(obj)
+                    dict_list.append(workout)
 
         sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
 
