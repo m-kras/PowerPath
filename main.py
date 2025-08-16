@@ -11,11 +11,9 @@ from datetime import date
 from datetime import datetime
 from pathlib import Path
 import ast
-import re
-from collections import OrderedDict
+from tabulate import tabulate
 
-
-__version__ = '1.2.7'
+__version__ = '1.2.9'
 
 
 class HomeScreen(Screen):
@@ -305,28 +303,28 @@ class SessionScreen(Screen):
         else:
             return "No previous Workouts..."
 
-        # create a string to show the previous workout
         for obj in self.prev_workouts:  # loop again to find workout with fitting date
             if datetime.strptime(obj["Date"], "%d/%m/%Y").date() == recent_date:  # if date found
                 prev_workout = obj  # assign correct dict (prev workout) to variable
                 break
 
-        workout_str = f"Previous: {prev_workout['Date']}\n"  # start of workout_str
+        workout_str = f"Previous: {prev_workout['Date']}\n\n" # start of workout_str
+
+        data_list = [["Exercise", "Weight", "Reps"]] # header
 
         for key, value in list(prev_workout.items())[
                           1:-1]:  # iterating over a list of tuples, each containing a key and value
             if value != "":
-                workout_str = f"{workout_str}{key}: "  # first part of addition
 
                 value = ast.literal_eval(value)  # convert str rep. of list into actual list
 
                 for obj in value:  # for every set of an exercise
-                    workout_str = f"{workout_str}\n({obj[0]}, {obj[1]})"  # second part of addition
+                    data_list.append([key, obj[0], obj[1]]) # append data, weight, set
 
-                workout_str = f"{workout_str}\n"  # add new line before next exercise
+        workout_str += tabulate(data_list, headers="firstrow", tablefmt="fancy_grid")
 
         if prev_workout["Comment"] != "": # if the user wrote a comment for this workout
-            workout_str = f"{workout_str}Comment: {prev_workout['Comment']}" # add comment to the string
+            workout_str += f"\nComment: {prev_workout['Comment']}" # add comment to the string
 
         return workout_str
 
@@ -471,25 +469,29 @@ class PastScreen(Screen):
 
         sorted_list = sorted(dict_list, key=lambda x: datetime.strptime(x["Date"], "%d/%m/%Y"), reverse=True)
 
-
         for obj in sorted_list: # for each dictionary (a dict is a workout)
-            entry_str = ""  # string for the current entry
-
             entry_str = f"Date: {obj['Date']}\n\n"  # add date of workout
+            comment = ""
+            data_list = [["Exercise", "Weight", "Reps"]] # header row
 
             for key, value in list(obj.items())[1:]:  # iterating over a list of tuples, each containing a key and value
                 if value != "" and key != "Comment":
-                    entry_str = f"{entry_str}\n{key}: "  # first part of addition
 
                     value = ast.literal_eval(value)  # convert str rep. of list into actual list
 
                     for i in value:  # for every set of an exercise
-                        entry_str = f"{entry_str}\n({i[0]}, {i[1]})"  # second part of addition
+                        data_list.append([key, i[0], i[1]]) # append new row for this set
 
                 elif key == "Comment" and value != "": # if the user wrote a comment for this workout
-                    entry_str = f"{entry_str}\nComment: {obj['Comment']}" # add comment to the string
+                    comment = f"Comment: {obj['Comment']}"
 
-            entry_str = f"{entry_str}\n\n\n"
+            workout_table = tabulate(data_list, headers="firstrow", tablefmt="fancy_grid")
+
+            if comment != "":
+                entry_str += f"{workout_table}\n{comment}\n\n\n" # create a string with a date, table and comment
+
+            else:
+                entry_str += f"{workout_table}\n\n\n" # without comment
 
             result.append(entry_str)
 
@@ -536,7 +538,6 @@ class PastScreen(Screen):
         else:
             self.ids.feedback_label.text = "Please select a workout date."
             self.ids.feedback_label.color = 1, 0, 0, 1
-
 
     def edit_or_show(self, showing_mode):
         if showing_mode: # True as parameter -> showing mode
