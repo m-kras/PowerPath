@@ -13,7 +13,7 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 
-__version__ = '1.2.9'
+__version__ = '1.3.0'
 
 
 class HomeScreen(Screen):
