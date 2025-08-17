@@ -457,6 +457,7 @@ class PastScreen(Screen):
         self.edit_or_show(True) # showing mode by default
         self.ids.main_rv.data = ""
         self.ids.feedback_label.text = ""
+
     def get_str_list(self, workout_name):
         dict_list = []
         result = []
