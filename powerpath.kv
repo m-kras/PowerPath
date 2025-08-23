@@ -19,7 +19,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -29,7 +29,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -90,7 +90,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -177,7 +177,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -221,7 +221,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -283,7 +283,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -330,7 +330,7 @@
 <StartSessionScreen>:
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -390,7 +390,7 @@
 <SessionScreen>:
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -483,7 +483,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -521,14 +521,14 @@
         Button:
             text: "Show"
             font_size: root.width * 0.04
-            size_hint: 0.5, 0.05
+            size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.65}
             on_press: root.show_past_workouts()
 
         Button:
             text: "Make Changes"
             font_size: root.width * 0.04
-            size_hint: 0.5, 0.05
+            size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
             on_press:
                 if root.ids.workout_spinner.text != "Select Workout": root.edit_or_show(False)
@@ -538,7 +538,7 @@
             opacity: 0
             disabled: True
             font_size: root.width * 0.02
-            size_hint: 0.4, 0.07
+            size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.47}
 
         Button:
@@ -582,7 +582,7 @@
     size_hint_y: None
     text_size: self.width, None
     font_name: "data/NotoSansMono.ttf"
-    font_size: self.width * 0.027
+    font_size: self.width * 0.018
     height: self.texture_size[1] + dp(10)
     halign: "center"
     valign: "middle"
@@ -596,7 +596,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -638,7 +638,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -682,7 +682,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -726,7 +726,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
@@ -760,7 +760,7 @@
 
     canvas.before:
         Color:
-            rgba: 0.1, 0.1, 0.1, 1
+            rgba: 0.15, 0.15, 0.15, 1
         Rectangle:
             pos: self.pos
             size: self.size
