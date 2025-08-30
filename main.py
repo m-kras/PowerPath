@@ -441,6 +441,30 @@ class SessionScreen(Screen):
             self.ids.feedback_label.text = "Invalid input."
             self.ids.feedback_label.color = 1, 0, 0, 1
 
+    def prev_exercise(self):
+        self.sets_to_dict()  # secure current sets
+
+        prev_index = (
+            self.exer_list.index(self.current_exercise) - 1
+        )  # get index of previous exercise
+
+        if prev_index >= 0:
+            self.current_exercise = self.exer_list[prev_index]
+
+            if self.current_exercise in self.workout_dict.keys():  # if sets added
+                self.current_exercise_sets = self.workout_dict[
+                    self.current_exercise
+                ]  # get previous sets
+
+                self.ids.exerset_label.text = f"{self.current_exercise} - Set {len(self.current_exercise_sets) + 1}"  # new exerset_label text
+
+            else:  # prev. exercise has no sets yet
+                self.ids.exerset_label.text = f"{self.current_exercise} - Set 1"
+
+        else:  # index out of range
+            self.ids.feedback_label.text = "No previous exercises."
+            self.ids.feedback_label.color = 1, 0, 0, 1
+
     def next_exercise(self):
         new_index = (
             self.exer_list.index(self.current_exercise) + 1

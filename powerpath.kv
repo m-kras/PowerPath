@@ -441,17 +441,24 @@
             bold: True
 
         Button:
+            text: "Prev. Exercise"
+            font_size: root.width * 0.032
+            size_hint: 0.28, 0.1
+            pos_hint: {"center_x": 0.15, "center_y": 0.49}
+            on_press: root.prev_exercise()
+
+        Button:
             text: "Add Set"
             font_size: root.width * 0.032
-            size_hint: 0.3, 0.1
-            pos_hint: {"center_x": 0.25, "center_y": 0.49}
+            size_hint: 0.28, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.49}
             on_press: root.add_set()
 
         Button:
             text: "Next Exercise"
             font_size: root.width * 0.032
-            size_hint: 0.3, 0.1
-            pos_hint: {"center_x": 0.75, "center_y": 0.49}
+            size_hint: 0.28, 0.1
+            pos_hint: {"center_x": 0.85, "center_y": 0.49}
             on_press: root.next_exercise()
 
         TextInput:
