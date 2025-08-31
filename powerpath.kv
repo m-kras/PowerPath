@@ -41,7 +41,7 @@
             font_size: root.width * 0.02
             size_hint: 0.17, 0.05
             pos_hint: {"center_x": 0.9, "center_y": 0.92}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "howto"
 
@@ -63,7 +63,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.57}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "manage"
 
@@ -72,7 +72,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.37}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "startsession"
 
@@ -81,7 +81,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.17}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "past"
 
@@ -113,7 +113,7 @@
                 size_hint_y: None
                 pos_hint: {"x": 0.01}
                 height: "45sp"
-                on_press:
+                on_release:
                     root.manager.transition.direction = "right"
                     app.root.current = "home"
 
@@ -194,7 +194,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.55}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "addplan"
 
@@ -203,7 +203,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "delplan"
 
@@ -212,7 +212,7 @@
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
 
@@ -252,7 +252,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.45}
-            on_press: root.add_exercise()
+            on_release: root.add_exercise()
 
         Label:
             id: feedback_label
@@ -267,16 +267,14 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
-            on_press:
-                root.save_plan()
+            on_release: root.save_plan()
 
         Button:
             text: "Cancel"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
-            on_press:
-                root.open_popup()
+            on_release: root.open_popup()
 
 
 <DelPlanScreen>:
@@ -315,14 +313,14 @@
             background_normal: ""
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
-            on_press: root.open_popup()
+            on_release: root.open_popup()
 
         Button:
             text: "Back"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "right"
                 app.root.current = "manage"
 
@@ -368,7 +366,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
-            on_press: root.start_session()
+            on_release: root.start_session()
 
         Label:
             id: feedback_label
@@ -382,7 +380,7 @@
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
 
@@ -410,7 +408,7 @@
             italic: True
             size_hint: 0.25, 0.05
             pos_hint: {"center_x": 0.14, "center_y": 0.92}
-            on_press: root.open_prev_popup()
+            on_release: root.open_prev_popup()
 
         Label:
             id: exerset_label
@@ -445,21 +443,21 @@
             font_size: root.width * 0.032
             size_hint: 0.28, 0.1
             pos_hint: {"center_x": 0.15, "center_y": 0.49}
-            on_press: root.prev_exercise()
+            on_release: root.prev_exercise()
 
         Button:
             text: "Add Set"
             font_size: root.width * 0.032
             size_hint: 0.28, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.49}
-            on_press: root.add_set()
+            on_release: root.add_set()
 
         Button:
             text: "Next Exercise"
             font_size: root.width * 0.032
             size_hint: 0.28, 0.1
             pos_hint: {"center_x": 0.85, "center_y": 0.49}
-            on_press: root.next_exercise()
+            on_release: root.next_exercise()
 
         TextInput:
             id: comment_input
@@ -476,14 +474,14 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.22}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
-            on_press: root.save_session()
+            on_release: root.save_session()
 
         Button:
             text: "Cancel"
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
-            on_press: Factory.CancelPopup().open()
+            on_release: Factory.CancelPopup().open()
 
 
 <PastScreen>:
@@ -502,7 +500,7 @@
             font_size: root.width * 0.03
             size_hint: 0.25, 0.04
             pos_hint: {"center_x": 0.14, "center_y": 0.92}
-            on_press:
+            on_release:
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
 
@@ -530,14 +528,14 @@
             font_size: root.width * 0.04
             size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.65}
-            on_press: root.show_past_workouts()
+            on_release: root.show_past_workouts()
 
         Button:
             text: "Make Changes"
             font_size: root.width * 0.04
             size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
-            on_press:
+            on_release:
                 if root.ids.workout_spinner.text != "Select Workout": root.edit_or_show(False)
 
         Spinner:
@@ -558,7 +556,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
-            on_press: root.switch_to_editor()
+            on_release: root.switch_to_editor()
 
         Button:
             id: del_btn
@@ -570,7 +568,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.23}
             background_color: 1, 0.3, 0, 1
             background_normal: ""
-            on_press: root.open_delwrk_popup()
+            on_release: root.open_delwrk_popup()
 
         RecycleView:
             id: main_rv
@@ -625,7 +623,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
-            on_press:
+            on_release:
                 root.dismiss()
                 app.root.transition.direction = "right"
                 app.root.current = "home"
@@ -635,7 +633,7 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 
 
 <DelWrkPopup@Popup>:
@@ -668,14 +666,14 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 
         Button:
             text: "Yes"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
-            on_press:
+            on_release:
                 root.del_workout()
                 root.dismiss()
                 app.root.transition.direction = "right"
@@ -712,14 +710,14 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 
         Button:
             text: "Yes"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
-            on_press:
+            on_release:
                 root.del_plan()
                 root.dismiss()
                 app.root.transition.direction = "right"
@@ -757,7 +755,7 @@
             font_size: root.width * 0.025
             size_hint: 0.4, 0.1
             pos_hint: {"center_x": 0.8, "center_y": 0.1}
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 
 
 <WarningPopup@Popup>:
@@ -785,11 +783,11 @@
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 
         Button:
             text: "Yes"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
-            on_press: app.stop()
+            on_release: app.stop()
