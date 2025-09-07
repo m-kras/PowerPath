@@ -193,10 +193,19 @@
             text: "Add Plan"
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
-            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+            pos_hint: {"center_x": 0.5, "center_y": 0.65}
             on_release:
                 root.manager.transition.direction = "left"
                 app.root.current = "addplan"
+
+        Button:
+            text: "Edit Plan"
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.50}
+            on_release:
+                root.manager.transition.direction = "left"
+                app.root.current = "editplan"
 
         Button:
             text: "Delete Plan"
@@ -275,6 +284,114 @@
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
             on_release: root.open_popup()
+
+
+<EditPlanScreen>:
+
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: "Edit Plan"
+            font_size: root.width * 0.07
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
+        Spinner:
+            id: edit_spinner
+            text: "Select Plan"
+            font_size: root.width * 0.04
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+            on_text: root.on_plan_selected(self.text)
+
+        Label:
+            id: feedback_label
+            font_size: root.width * 0.03
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.65}
+
+        RecycleView:
+            size_hint: 1, 0.6
+            id: edit_rv
+            viewclass: 'ExerciseRow'
+            RecycleBoxLayout:
+                orientation: 'vertical'
+                default_size: None, dp(50)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(10)
+                padding: dp(30)
+
+        Button:
+            id: apply_btn
+            text: "Apply Changes"
+            font_size: root.width * 0.03
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.05, "y": 0.07}
+            background_color: 0, 0.5, 0.7, 1
+            background_normal: ""
+            on_release: root.open_popup()
+
+        Button:
+            text: "Back"
+            font_size: root.width * 0.03
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.07}
+            on_release:
+                root.manager.transition.direction = "right"
+                app.root.current = "manage"
+
+
+<ExerciseRow@BoxLayout>:
+    exercise_name: ""
+    orientation: "horizontal"
+    size_hint_y: None
+    size_hint_x: 1
+    height: sp(100)
+    is_add_row: False
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Line:
+            width: 1
+            rectangle: (self.x, self.y, self.width, self.height)
+
+    Label:
+        text: root.exercise_name
+        font_size: root.width * 0.05
+        text_size: self.size
+        size_hint_x: 0.3 if not root.is_add_row else 0
+        width: self.width if not root.is_add_row else 0
+        halign: "center"
+        opacity: 1 if not root.is_add_row else 0
+        disabled: root.is_add_row
+
+    Button:
+        text: "🗑️"
+        font_name: "data/NotoEmoji.ttf"
+        size_hint_x: 0.12 if not root.is_add_row else 0
+        width: self.width if not root.is_add_row else 0
+        opacity: 1 if not root.is_add_row else 0
+        disabled: root.is_add_row
+        on_release: root.rm_callback(root.exercise_name) if root.rm_callback else None
+
+    TextInput:
+        hint_text: "Add exercise..."
+        font_size: root.width * 0.04
+        multiline: False
+        size_hint_x: 1 if root.is_add_row else 0
+        width: self.width if root.is_add_row else 0
+        opacity: 1 if root.is_add_row else 0
+        disabled: not root.is_add_row
+        on_text_validate: root.add_callback(self.text) if root.is_add_row else None
 
 
 <DelPlanScreen>:
@@ -719,6 +836,50 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             on_release:
                 root.del_plan()
+                root.dismiss()
+                app.root.transition.direction = "right"
+                app.root.current = "home"
+
+
+<EditPlanPopup@Popup>:
+    title: "Edit Plan"
+    size_hint: 0.8, 0.7
+    auto_dismiss: False
+
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: "Apply changes?"
+            font_size: root.width * 0.05
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        Label:
+            text: "(Note: All the past data of removed exercises will be lost.)"
+            font_size: root.width * 0.03
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+        Button:
+            text: "No"
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            on_release: root.dismiss()
+
+        Button:
+            text: "Yes"
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_release:
+                root.apply_changes()
                 root.dismiss()
                 app.root.transition.direction = "right"
                 app.root.current = "home"

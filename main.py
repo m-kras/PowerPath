@@ -13,7 +13,7 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 
-__version__ = "1.3.2"
+__version__ = "1.3.3"
 
 
 class HomeScreen(Screen):
@@ -167,6 +167,100 @@ class AddPlanScreen(Screen):
         else:  # no exercises added => no popup necessary
             self.manager.transition.direction = "right"
             self.manager.current = "manage"
+
+
+class EditPlanScreen(Screen):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
+    def on_pre_enter(self, *args):
+        self.plan_list = (
+            self.app.get_workouts()
+        )  # list with all the currently saved workout plans
+
+        self.ids.edit_spinner.values = (
+            self.plan_list
+        )  # update spinner values on every re-entry
+        self.ids.edit_spinner.text = "Select Plan"
+        self.ids.feedback_label.text = ""
+        self.ids.edit_rv.data = []
+        self.exercise_list = []
+
+    def on_plan_selected(self, plan):
+        if plan != "Select Plan":
+            with open(
+                    self.app.get_data_path(f"{plan}.csv"),
+                    "r",
+                    newline="",
+            ) as file:
+                dictreader = csv.DictReader(file, delimiter=";")
+                fieldnames = dictreader.fieldnames  # get exercises
+
+            exercises = list(fieldnames)
+            exercises.remove("Date")
+            exercises.remove("Comment")
+
+            data_list = []  # for the RecycleView
+            for exercise in exercises:
+                self.exercise_list.append(exercise.strip())
+                data_list.append({"exercise_name": exercise.strip(), "is_add_row": False,
+                                  "rm_callback": self.rm_exercise})  # for regular exercise rows
+            data_list.append({"exercise_name": "", "is_add_row": True, "add_callback": self.add_exercise})  # final row
+
+            self.ids.edit_rv.data = data_list
+
+    def add_exercise(self, exercise_name):
+        exercise = exercise_name.strip()
+
+        # valid input
+        if (
+                exercise.replace("(", "")
+                        .replace(")", "")
+                        .replace("-", "")
+                        .replace(" ", "")
+                        .replace(".", "")
+                        .isalnum()
+                is True
+        ) and (exercise not in self.exercise_list):
+            self.exercise_list.append(exercise)
+
+            new_data_list = []
+            for ex in self.exercise_list:
+                new_data_list.append({"exercise_name": ex, "is_add_row": False, "rm_callback": self.rm_exercise})
+            new_data_list.append({"exercise_name": "", "is_add_row": True, "add_callback": self.add_exercise})
+
+            self.ids.edit_rv.data = new_data_list
+
+        elif exercise in self.exercise_list:  # already used
+            self.ids.feedback_label.text = "Exercise exists already."
+            self.ids.feedback_label.color = 1, 0, 0, 1
+
+        else:  # invalid exercise name
+            self.ids.feedback_label.text = "Invalid exercise name."
+            self.ids.feedback_label.color = 1, 0, 0, 1
+
+    def rm_exercise(self, exercise_name):
+        self.exercise_list.remove(exercise_name)
+
+        new_data_list = []
+        for ex in self.exercise_list:
+            new_data_list.append({"exercise_name": ex, "is_add_row": False, "rm_callback": self.rm_exercise})
+        new_data_list.append({"exercise_name": "", "is_add_row": True, "add_callback": self.add_exercise})
+
+        self.ids.edit_rv.data = new_data_list
+
+    def open_popup(self):
+        if self.ids.edit_spinner.text != "Select Plan":  # must be selected
+            popup = EditPlanPopup()
+            popup.new_exercises = self.exercise_list
+            popup.plan = self.ids.edit_spinner.text
+            popup.open()
+
+        else:  # if no plan selected
+            self.ids.feedback_label.text = "No plan selected."
+            self.ids.feedback_label.color = 1, 0, 0, 1
 
 
 class DelPlanScreen(Screen):
@@ -783,6 +877,48 @@ class DelWrkPopup(Popup):
                 dictwriter.writerow(workout)
 
 
+##########
+# POPUPS #
+##########
+class EditPlanPopup(Popup):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
+    def apply_changes(self):
+        with open(
+                self.app.get_data_path(f"{self.plan}.csv"), "r"
+        ) as file:
+            dictreader = csv.DictReader(file, delimiter=";")
+
+            fieldnames = dictreader.fieldnames
+            workout_data = []
+            for row in dictreader:
+                workout_data.append(row)
+
+        # compare new to old (for maintained and added exercises)
+        for ex in self.new_exercises:
+            if ex not in fieldnames:
+                for obj in workout_data:
+                    obj.update({ex: ''})  # add the new exercise to each past workout (with empty set values)
+
+        # compare old to new (for removed exercises)
+        for ex in fieldnames:
+            if ex not in ["Date", "Comment"] and ex not in self.new_exercises:  # if it has been removed
+                for obj in workout_data:
+                    obj.pop(ex)  # delete all the data of the removed exercise from the dict
+
+        new_fieldnames = ["Date"] + self.new_exercises + ["Comment"]
+        with open(
+            self.app.get_data_path(f"{self.plan}.csv"), "w", newline=""
+        ) as file:
+            dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=new_fieldnames)
+            dictwriter.writeheader()
+            for obj in workout_data:
+                dictwriter.writerow(obj)
+
+
 class DelPlanPopup(Popup):
 
     def __init__(self, **kwargs):
@@ -832,12 +968,13 @@ class Powerpath(App):
         sm = MyScreenManager()
         sm.add_widget(HomeScreen(name="home"))
         sm.add_widget(HowToScreen(name="howto"))
-        sm.add_widget(PastScreen(name="past"))
         sm.add_widget(ManageScreen(name="manage"))
         sm.add_widget(AddPlanScreen(name="addplan"))
+        sm.add_widget(EditPlanScreen(name="editplan"))
         sm.add_widget(DelPlanScreen(name="delplan"))
         sm.add_widget(StartSessionScreen(name="startsession"))
         sm.add_widget(SessionScreen(name="session"))
+        sm.add_widget(PastScreen(name="past"))
 
         # create .csv to save all the workouts (upon first app launch)
         if not self.get_data_path("all_workouts.csv").is_file():
