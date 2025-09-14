@@ -13,7 +13,7 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 
-__version__ = "1.3.3"
+__version__ = "1.3.4"
 
 
 class HomeScreen(Screen):
@@ -37,7 +37,7 @@ class AddPlanScreen(Screen):
     def on_pre_enter(self, *args):
         # reset widgets etc.
         self.added_exercises = []
-        self.ids.exercise_input.hint_text = "Exercise 1"
+        self.ids.exercise_input.hint_text = f"{self.app.get_text(50)} 1"
         self.ids.exercise_input.text = ""
         self.ids.name_input.text = ""
         self.ids.feedback_label.text = ""
@@ -58,7 +58,7 @@ class AddPlanScreen(Screen):
             self.added_exercises.append(exercise)
 
             # configure positive feedback
-            self.ids.feedback_label.text = "Exercise added!"
+            self.ids.feedback_label.text = self.app.get_text(51)
             self.ids.feedback_label.color = 0, 1, 0, 1
             self.ids.feedback_label.bold = True
 
@@ -67,14 +67,14 @@ class AddPlanScreen(Screen):
                 self.ids.exercise_input.hint_text[-1]
             )  # nr = last character of hint_text
             self.ids.exercise_input.hint_text = (
-                f"Exercise {exercise_nr + 1}"  # new hint_text (e.g. Exercise 1 -> 2)
+                f"{self.app.get_text(50)} {exercise_nr + 1}"  # new hint_text (e.g. Exercise 1 -> 2)
             )
             self.ids.exercise_input.text = ""
 
         # empty input
         elif exercise == "":
             # configure negative feedback
-            self.ids.feedback_label.text = "Please pass in an exercise."
+            self.ids.feedback_label.text = self.app.get_text(52)
             self.ids.feedback_label.color = 1, 0, 0, 1
             self.ids.feedback_label.bold = True
 
@@ -83,7 +83,7 @@ class AddPlanScreen(Screen):
         # exercise already added
         elif exercise in self.added_exercises:
             # configure negative feedback
-            self.ids.feedback_label.text = "Exercise has already been added."
+            self.ids.feedback_label.text = self.app.get_text(53)
             self.ids.feedback_label.color = 1, 0, 0, 1
             self.ids.feedback_label.bold = True
 
@@ -93,7 +93,7 @@ class AddPlanScreen(Screen):
         else:
             # configure negative feedback
             self.ids.feedback_label.text = (
-                "Allowed characters: a-z, 0-9, (), -, ., Space"
+                self.app.get_text(54)
             )
             self.ids.feedback_label.color = 1, 0, 0, 1
             self.ids.feedback_label.bold = True
@@ -119,7 +119,7 @@ class AddPlanScreen(Screen):
 
                     # create workout (plan)-specific csv file
                     with open(
-                        self.app.get_data_path(f"{name}.csv"), "w", newline=""
+                        self.app.get_data_path(f"{name}.csv"), "w", encoding="utf-8", newline=""
                     ) as file:
                         writer = csv.DictWriter(
                             file, fieldnames=self.added_exercises, delimiter=";"
@@ -128,7 +128,7 @@ class AddPlanScreen(Screen):
 
                     # adding name to all_workouts.csv
                     with open(
-                        self.app.get_data_path("all_workouts.csv"), "a", newline=""
+                        self.app.get_data_path("all_workouts.csv"), "a", encoding="utf-8", newline=""
                     ) as file:
                         writer = csv.writer(file)
                         writer.writerow([name])
@@ -140,21 +140,21 @@ class AddPlanScreen(Screen):
                 # workout name already used
                 else:
                     # configure negative feedback
-                    self.ids.feedback_label.text = "Workout name already used."
+                    self.ids.feedback_label.text = self.app.get_text(55)
                     self.ids.feedback_label.color = 1, 0, 0, 1
                     self.ids.feedback_label.bold = True
 
             # workout not named
             else:
                 # configure negative feedback
-                self.ids.feedback_label.text = "Please add a name."
+                self.ids.feedback_label.text = self.app.get_text(56)
                 self.ids.feedback_label.color = 1, 0, 0, 1
                 self.ids.feedback_label.bold = True
 
         # exercise list empty
         else:
             # configure negative feedback
-            self.ids.feedback_label.text = "No Exercises added."
+            self.ids.feedback_label.text = self.app.get_text(57)
             self.ids.feedback_label.color = 1, 0, 0, 1
             self.ids.feedback_label.bold = True
 
@@ -183,16 +183,17 @@ class EditPlanScreen(Screen):
         self.ids.edit_spinner.values = (
             self.plan_list
         )  # update spinner values on every re-entry
-        self.ids.edit_spinner.text = "Select Plan"
+        self.ids.edit_spinner.text = self.app.get_text(20)
         self.ids.feedback_label.text = ""
         self.ids.edit_rv.data = []
         self.exercise_list = []
 
     def on_plan_selected(self, plan):
-        if plan != "Select Plan":
+        if plan != self.app.get_text(20):
             with open(
                     self.app.get_data_path(f"{plan}.csv"),
                     "r",
+                    encoding="utf-8",
                     newline="",
             ) as file:
                 dictreader = csv.DictReader(file, delimiter=";")
@@ -234,11 +235,11 @@ class EditPlanScreen(Screen):
             self.ids.edit_rv.data = new_data_list
 
         elif exercise in self.exercise_list:  # already used
-            self.ids.feedback_label.text = "Exercise exists already."
+            self.ids.feedback_label.text = self.app.get_text(58)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
         else:  # invalid exercise name
-            self.ids.feedback_label.text = "Invalid exercise name."
+            self.ids.feedback_label.text = self.app.get_text(59)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def rm_exercise(self, exercise_name):
@@ -252,14 +253,14 @@ class EditPlanScreen(Screen):
         self.ids.edit_rv.data = new_data_list
 
     def open_popup(self):
-        if self.ids.edit_spinner.text != "Select Plan":  # must be selected
+        if self.ids.edit_spinner.text != self.app.get_text(20):  # must be selected
             popup = EditPlanPopup()
             popup.new_exercises = self.exercise_list
             popup.plan = self.ids.edit_spinner.text
             popup.open()
 
         else:  # if no plan selected
-            self.ids.feedback_label.text = "No plan selected."
+            self.ids.feedback_label.text = self.app.get_text(60)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
 
@@ -277,18 +278,18 @@ class DelPlanScreen(Screen):
         self.ids.delplan_spinner.values = (
             self.plan_list
         )  # update spinner values on every re-entry
-        self.ids.delplan_spinner.text = "Select Plan"
+        self.ids.delplan_spinner.text = self.app.get_text(20)
 
     # open popup if deletion button pressed
     def open_popup(self):
-        if self.ids.delplan_spinner.text != "Select Plan":  # must be selected
+        if self.ids.delplan_spinner.text != self.app.get_text(20):  # must be selected
             popup = DelPlanPopup()
             popup.plan_list = self.plan_list  # pass on plan_list
             popup.plan = self.ids.delplan_spinner.text  # pass on the chosen exercise
             popup.open()
 
         else:  # if no plan selected
-            self.ids.feedback_label.text = "No plan selected."
+            self.ids.feedback_label.text = self.app.get_text(60)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
 
@@ -300,7 +301,7 @@ class StartSessionScreen(Screen):
 
     def on_pre_enter(self, *args):
         # labels/texts etc.
-        self.ids.workout_spinner.text = "Select Workout"
+        self.ids.workout_spinner.text = self.app.get_text(20)
         self.ids.feedback_label.text = ""
 
         # update spinner values
@@ -315,18 +316,19 @@ class StartSessionScreen(Screen):
 
     def start_session(self):
         if (
-            self.ids.workout_spinner.text != "Select Workout"
+            self.ids.workout_spinner.text != self.app.get_text(20)
         ):  # workout must be selected
             # check whether date has been used already
             with open(
                 self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"),
                 "r",
+                encoding="utf-8",
                 newline="",
             ) as file:
                 dictreader = csv.DictReader(file, delimiter=";")
                 for workout in dictreader:
                     if workout["Date"] == self.ids.date_input.text:
-                        self.ids.feedback_label.text = "Date has been used already."
+                        self.ids.feedback_label.text = self.app.get_text(61)
                         self.ids.feedback_label.color = 1, 0, 0, 1
                         return
 
@@ -350,12 +352,12 @@ class StartSessionScreen(Screen):
                 self.manager.current = "session"  # switch to SessionScreen
 
             else:  # date_check is False
-                self.ids.feedback_label.text = "Date invalid."
+                self.ids.feedback_label.text = self.app.get_text(62)
                 self.ids.feedback_label.color = 1, 0, 0, 1
 
         else:  # no workout selected
             # configure negative feedback
-            self.ids.feedback_label.text = "Please select a workout."
+            self.ids.feedback_label.text = self.app.get_text(63)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
 
@@ -379,7 +381,7 @@ class SessionScreen(Screen):
         self.exer_list = []  # list to store exercises (from csv header)
         self.prev_workouts = []  # list of dicts (!) to store the previous workouts
 
-        with open(self.app.get_data_path(f"{self.current_workout}.csv"), "r") as file:
+        with open(self.app.get_data_path(f"{self.current_workout}.csv"),  "r", encoding="utf-8") as file:
             dictreader = csv.DictReader(file, delimiter=";")
 
             for obj in dictreader.fieldnames:  # for every header object
@@ -399,17 +401,17 @@ class SessionScreen(Screen):
 
         # set labels etc.
         self.ids.exerset_label.text = (
-            f"{self.current_exercise} - Set 1"  # show first exercise and Set 1
+            f"{self.current_exercise} - {self.app.get_text(64)} 1"  # show first exercise and Set 1
         )
         self.ids.date_label.text = self.current_date  # set date label
         # reset widgets
         self.ids.weight_input.text = ""
         self.ids.reps_input.text = ""
-        self.ids.weight_input.hint_text = "Weight in KG"
-        self.ids.reps_input.hint_text = "Reps"
+        self.ids.weight_input.hint_text = self.app.get_text(28)
+        self.ids.reps_input.hint_text = self.app.get_text(29)
         self.ids.feedback_label.text = ""
         self.ids.comment_input.text = ""
-        self.ids.comment_input.hint_text = "Comment"
+        self.ids.comment_input.hint_text = self.app.get_text(33)
         self.ids.prev_btn.opacity = 1
         self.ids.prev_btn.disabled = False
 
@@ -501,14 +503,14 @@ class SessionScreen(Screen):
             )  # append both values to list (in form of a list)
 
             # configure pos. feedback
-            self.ids.feedback_label.text = "Set added!"
+            self.ids.feedback_label.text = self.app.get_text(65)
             self.ids.feedback_label.color = 0, 1, 0, 1
 
             # update set number
             set_nr = int(
                 self.ids.exerset_label.text[-1]
             )  # nr = last character (assumption: <9 sets per exercise)
-            self.ids.exerset_label.text = f"{self.current_exercise} - Set {set_nr + 1}"
+            self.ids.exerset_label.text = f"{self.current_exercise} - {self.app.get_text(64)} {set_nr + 1}"
 
             # configure inputs
             self.ids.weight_input.text = ""
@@ -532,7 +534,7 @@ class SessionScreen(Screen):
 
         else:
             # configure neg. feedback
-            self.ids.feedback_label.text = "Invalid input."
+            self.ids.feedback_label.text = self.app.get_text(66)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def prev_exercise(self):
@@ -550,13 +552,13 @@ class SessionScreen(Screen):
                     self.current_exercise
                 ]  # get previous sets
 
-                self.ids.exerset_label.text = f"{self.current_exercise} - Set {len(self.current_exercise_sets) + 1}"  # new exerset_label text
+                self.ids.exerset_label.text = f"{self.current_exercise} - {self.app.get_text(64)} {len(self.current_exercise_sets) + 1}"  # new exerset_label text
 
             else:  # prev. exercise has no sets yet
-                self.ids.exerset_label.text = f"{self.current_exercise} - Set 1"
+                self.ids.exerset_label.text = f"{self.current_exercise} - {self.app.get_text(64)} 1"
 
         else:  # index out of range
-            self.ids.feedback_label.text = "No previous exercises."
+            self.ids.feedback_label.text = self.app.get_text(67)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def next_exercise(self):
@@ -569,7 +571,7 @@ class SessionScreen(Screen):
 
             self.current_exercise = self.exer_list[new_index]  # get new exercise
             self.ids.exerset_label.text = (
-                f"{self.current_exercise} - Set 1"  # new exerset_label text
+                f"{self.current_exercise} - {self.app.get_text(64)} 1"  # new exerset_label text
             )
 
             # update labels, input boxes
@@ -591,7 +593,7 @@ class SessionScreen(Screen):
                     pass
 
         else:  # last exercise already reached
-            self.ids.feedback_label.text = "This is the final exercise."
+            self.ids.feedback_label.text = self.app.get_text(68)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     # write sets into dict
@@ -616,7 +618,7 @@ class SessionScreen(Screen):
             "Comment": self.ids.comment_input.text.strip(),
         }:  # sets must have been added
             with open(
-                self.app.get_data_path(f"{self.current_workout}.csv"), "r", newline=""
+                self.app.get_data_path(f"{self.current_workout}.csv"), "r", encoding="utf-8", newline=""
             ) as file:  # open in read mode
                 dictreader = csv.DictReader(file, delimiter=";")
                 fieldnames = dictreader.fieldnames  # get fieldnames of csv
@@ -635,7 +637,7 @@ class SessionScreen(Screen):
             )
 
             with open(
-                self.app.get_data_path(f"{self.current_workout}.csv"), "w", newline=""
+                self.app.get_data_path(f"{self.current_workout}.csv"), "w", encoding="utf-8", newline=""
             ) as file:
                 dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
                 dictwriter.writeheader()
@@ -650,7 +652,7 @@ class SessionScreen(Screen):
 
         # if no sets added
         else:
-            self.ids.feedback_label.text = "No sets added."
+            self.ids.feedback_label.text = self.app.get_text(69)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     # open popup to show the previous workout
@@ -676,8 +678,8 @@ class PastScreen(Screen):
         self.ids.workout_spinner.values = (
             workout_list  # update spinner values on every re-entry
         )
-        self.ids.workout_spinner.text = "Select Workout"
-        self.ids.date_spinner.text = "Select Date"
+        self.ids.workout_spinner.text = self.app.get_text(20)
+        self.ids.date_spinner.text = self.app.get_text(70)
 
         # configure widgets (hide/show/clear text)
         self.edit_or_show(True)  # showing mode by default
@@ -688,7 +690,7 @@ class PastScreen(Screen):
         dict_list = []
         result = []
 
-        with open(self.app.get_data_path(f"{workout_name}.csv"), "r") as file:
+        with open(self.app.get_data_path(f"{workout_name}.csv"), "r", encoding="utf-8") as file:
             dictreader = csv.DictReader(file, delimiter=";")
 
             for obj in dictreader:  # for each dictionary (a dict is a workout)
@@ -743,7 +745,7 @@ class PastScreen(Screen):
         self.edit_or_show(True)  # configure widgets (showing mode)
 
         if (
-            self.ids.workout_spinner.text != "Select Workout"
+            self.ids.workout_spinner.text != self.app.get_text(20)
         ):  # workout must be selected
             self.ids.main_rv.data = [
                 {"text": workout_str}
@@ -751,15 +753,15 @@ class PastScreen(Screen):
             ]  # update recycleview
 
         else:  # no workout selected
-            self.ids.feedback_label.text = "Please select a Workout."
+            self.ids.feedback_label.text = self.app.get_text(63)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def switch_to_editor(self):
         to_share = [self.ids.workout_spinner.text]
 
-        if self.ids.date_spinner.text != "Select Date":
+        if self.ids.date_spinner.text != self.app.get_text(70):
             with open(
-                self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r"
+                self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r", encoding="utf-8"
             ) as file:
                 dictreader = csv.DictReader(file, delimiter=";")
                 for workout in dictreader:
@@ -776,18 +778,18 @@ class PastScreen(Screen):
             self.manager.current = "session"
 
         else:
-            self.ids.feedback_label.text = "Please select a workout date."
+            self.ids.feedback_label.text = self.app.get_text(71)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def open_delwrk_popup(self):
-        if self.ids.date_spinner.text != "Select Date":
+        if self.ids.date_spinner.text != self.app.get_text(70):
             popup = DelWrkPopup()
             popup.workout_name = self.ids.workout_spinner.text
             popup.workout_date = self.ids.date_spinner.text
             popup.open()
 
         else:
-            self.ids.feedback_label.text = "Please select a workout date."
+            self.ids.feedback_label.text = self.app.get_text(71)
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def edit_or_show(self, showing_mode):
@@ -827,7 +829,7 @@ class PastScreen(Screen):
 
             all_dates = []
             with open(
-                self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r"
+                self.app.get_data_path(f"{self.ids.workout_spinner.text}.csv"), "r", encoding="utf-8"
             ) as file:
                 dictreader = csv.DictReader(file, delimiter=";")
                 for workout in dictreader:
@@ -846,12 +848,12 @@ class DelWrkPopup(Popup):
         self.app = App.get_running_app()
 
     def on_pre_open(self):
-        self.ids.wrk_date_label.text = f"{self.workout_name} from {self.workout_date}"
+        self.ids.wrk_date_label.text = f"{self.workout_name} {self.app.get_text(72)} {self.workout_date}"
 
     def del_workout(self):
         dict_list = []
 
-        with open(self.app.get_data_path(f"{self.workout_name}.csv"), "r") as file:
+        with open(self.app.get_data_path(f"{self.workout_name}.csv"), "r", encoding="utf-8") as file:
             dictreader = csv.DictReader(file, delimiter=";")
             fieldnames = dictreader.fieldnames
 
@@ -868,7 +870,7 @@ class DelWrkPopup(Popup):
         )
 
         with open(
-            self.app.get_data_path(f"{self.workout_name}.csv"), "w", newline=""
+            self.app.get_data_path(f"{self.workout_name}.csv"), "w", encoding="utf-8", newline=""
         ) as file:
             dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=fieldnames)
             dictwriter.writeheader()
@@ -888,7 +890,7 @@ class EditPlanPopup(Popup):
 
     def apply_changes(self):
         with open(
-                self.app.get_data_path(f"{self.plan}.csv"), "r"
+                self.app.get_data_path(f"{self.plan}.csv"), "r", encoding="utf-8"
         ) as file:
             dictreader = csv.DictReader(file, delimiter=";")
 
@@ -911,7 +913,7 @@ class EditPlanPopup(Popup):
 
         new_fieldnames = ["Date"] + self.new_exercises + ["Comment"]
         with open(
-            self.app.get_data_path(f"{self.plan}.csv"), "w", newline=""
+            self.app.get_data_path(f"{self.plan}.csv"), "w", encoding="utf-8", newline=""
         ) as file:
             dictwriter = csv.DictWriter(file, delimiter=";", fieldnames=new_fieldnames)
             dictwriter.writeheader()
@@ -933,7 +935,7 @@ class DelPlanPopup(Popup):
 
         self.plan_list.remove(self.plan)  # remove plan's name from plan_list
         with open(
-            self.app.get_data_path("all_workouts.csv"), "w", newline=""
+            self.app.get_data_path("all_workouts.csv"), "w", encoding="utf-8", newline=""
         ) as file:  # open in writing mode to overwrite
             writer = csv.writer(file)
             writer.writerow(["Workouts"])  # write header
@@ -950,6 +952,10 @@ class CancelPopup(Popup):
 
 
 class WarningPopup(Popup):
+    pass
+
+
+class SettingsPopup(Popup):
     pass
 
 
@@ -979,10 +985,18 @@ class Powerpath(App):
         # create .csv to save all the workouts (upon first app launch)
         if not self.get_data_path("all_workouts.csv").is_file():
             with open(
-                self.get_data_path("all_workouts.csv"), "a", newline=""
+                self.get_data_path("all_workouts.csv"), "a", encoding="utf-8", newline=""
             ) as file:  # creation of all_workouts.csv
                 writer = csv.writer(file)
                 writer.writerow(["Workouts"])  # write header
+
+        # create file to store language selection
+        if not self.get_data_path("current_lang.csv").is_file():
+            with open(
+                self.get_data_path("current_lang.csv"), "a", encoding="utf-8", newline=""
+            ) as file:
+                writer = csv.writer(file)
+                writer.writerow(["English"])
 
         return sm  # start the app (screenmanager as the main widget)
 
@@ -1013,7 +1027,7 @@ class Powerpath(App):
 
         self.workout_list = []
 
-        with open(self.get_data_path("all_workouts.csv"), "r") as file:
+        with open(self.get_data_path("all_workouts.csv"), "r", encoding="utf-8") as file:
             reader = csv.reader(file)
             next(reader)  # skip header ("Workouts")
             for line in reader:
@@ -1025,6 +1039,35 @@ class Powerpath(App):
                     )  # append all available exercises to list
 
         return self.workout_list
+
+    def get_current_lang(self):
+        with open(self.get_data_path("current_lang.csv"), "r", encoding="utf-8") as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                current = row[0]
+
+        return current
+
+    def change_language(self, new_lang):
+
+        current = self.get_current_lang()
+
+        if current != new_lang:  # if languages are not identical
+            with open(
+                    self.get_data_path("current_lang.csv"), "w", encoding="utf-8", newline=""
+            ) as file:
+                writer = csv.writer(file)
+                writer.writerow([new_lang])
+
+    def get_text(self, text_id):
+        current = self.get_current_lang().lower()
+
+        with open(f"languages/{current}.csv", "r", encoding="utf-8") as file:  # open file of currently active language
+            dictreader = csv.DictReader(file, delimiter=";")
+            for obj in dictreader:
+                if int(obj["id"]) == text_id:
+                    text = obj["text"].replace("\\n", "\n")  # correctly interpret newline characters
+                    return text
 
 
 if __name__ == "__main__":

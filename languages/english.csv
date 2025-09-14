@@ -1,0 +1,75 @@
+id;text
+1;How to...
+2;PowerPath
+3;It's about Progress
+4;Manage Plans
+5;New Workout
+6;Past Workouts
+7;Back
+8;-> Add a new plan:\n     1. Go to: 'Manage Plans' > 'Add Plan'\n     2. Enter plan's name and your exercises\n     3. Save
+9;-> Delete a plan:\n     1. Go to: 'Manage Plans' > 'Delete Plan'\n     2. Select a plan to delete\n     3. Confirm
+10;-> Start a new workout:\n     1. Go to: 'New Workout'\n     2. Select a plan\n     3. Change the date if needed\n     4. Start\n     5. Enter weight + reps for every set\n     6. Add a workout comment if needed and save
+11;-> Check your progress:\n     1. Go to: 'Past Workouts'\n     2. Select a plan\n     3. Press 'Show'
+12;-> Edit or delete Workouts:\n     1. Go to: 'Past Workouts'\n     2. Select a plan\n     3. Press 'Make Changes'\n     4. Select a date\n     5. Edit the workout (Confirm the weight/rep values by adding the set or change the values if needed) OR delete the workout
+13;Add Plan
+14;Edit Plan
+15;Delete Plan
+16;Name of your Plan
+17;Add Exercise
+18;Save Plan
+19;Cancel
+20;Select Plan
+21;Apply Changes
+22;Add exercise...
+23;Delete
+24;Select Workout
+25;Date:
+26;Start Workout
+27;Previous Workout
+28;Weight in KG
+29;Reps
+30;Prev. Exercise
+31;Add Set
+32;Next Exercise
+33;Comment
+34;SAVE
+35;Show
+36;Make Changes
+37;Edit
+38;Are you sure?
+39;(Input will not be saved.)
+40;Yes
+41;No
+42;Delete this workout?
+43;(All workout history will be deleted.)
+44;Apply changes?
+45;(Note: All the past data of removed exercises will be lost.)
+46;Exit app?
+47;Settings
+48;Language:
+49;Delete Workout
+50;Exercise
+51;Exercise added!
+52;Please pass in an exercise.
+53;Exercise has already been added.
+54;Allowed characters: a-z, 0-9, (), -, ., Space
+55;Workout name already used.
+56;Please add a name.
+57;No Exercises added.
+58;Exercise exists already.
+59;Invalid exercise name.
+60;No plan selected.
+61;Date has been used already.
+62;Date invalid.
+63;Please select a plan.
+64;Set
+65;Set added!
+66;Invalid input.
+67;No previous exercises.
+68;This is the final exercise.
+69;No sets added.
+70;Select Date
+71;Please select a workout date.
+72;from
+73;Note: Please restart the app after changing the language.
+74;-> Change the app's language:\n     1. Enter the Settings (home screen, top left)\n     2. Choose a language\n     3. Restart the app

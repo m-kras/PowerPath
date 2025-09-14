@@ -3,16 +3,16 @@
 
 
 <Button>:
-    font_name: "data/Parkinsans.ttf"
+    font_name: "data/DejaVuSansMono.ttf"
 
 <Label>:
-    font_name: "data/Parkinsans.ttf"
+    font_name: "data/DejaVuSansMono.ttf"
 
 <Spinner>:
-    font_name: "data/Parkinsans.ttf"
+    font_name: "data/DejaVuSansMono.ttf"
 
 <TextInput>:
-    font_name: "data/Parkinsans.ttf"
+    font_name: "data/DejaVuSansMono.ttf"
 
 
 <MyScreenManager>:
@@ -37,7 +37,15 @@
     FloatLayout:
 
         Button:
-            text: "How to..."
+            text: "⚙️"
+            font_name: "data/NotoEmoji.ttf"
+            font_size: root.width * 0.02
+            size_hint: 0.17, 0.05
+            pos_hint: {"center_x": 0.1, "center_y": 0.92}
+            on_release: Factory.SettingsPopup().open()
+
+        Button:
+            text: app.get_text(1)
             font_size: root.width * 0.02
             size_hint: 0.17, 0.05
             pos_hint: {"center_x": 0.9, "center_y": 0.92}
@@ -46,20 +54,20 @@
                 app.root.current = "howto"
 
         Label:
-            text: "PowerPath"
-            font_name: "data/Parkinsans-Bold.ttf"
+            text: app.get_text(2)
+            font_name: "data/DejaVuSansMono-Bold.ttf"
             font_size: root.width * 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
-            text: "It's about Progress"
-            font_name: "data/Montserrat-MediumItalic"
+            text: app.get_text(3)
+            font_name: "data/Montserrat-Italic.ttf"
             font_size: root.width * 0.04
             italic: True
             pos_hint: {"center_x": 0.5, "center_y": 0.8}
 
         Button:
-            text: "Manage Plans"
+            text: app.get_text(4)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.57}
@@ -68,7 +76,7 @@
                 app.root.current = "manage"
 
         Button:
-            text: "New Session"
+            text: app.get_text(5)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.37}
@@ -77,7 +85,7 @@
                 app.root.current = "startsession"
 
         Button:
-            text: "Past Workouts"
+            text: app.get_text(6)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.17}
@@ -107,7 +115,7 @@
             padding: "30sp"
 
             Button:
-                text: "Back"
+                text: app.get_text(7)
                 font_size: root.width * 0.03
                 size_hint_x: 0.3
                 size_hint_y: None
@@ -118,12 +126,12 @@
                     app.root.current = "home"
 
             Label:
-                text: "How to..."
+                text: app.get_text(1)
                 font_size: root.width * 0.07
                 size_hint_y: None
 
             Label:
-                text: "-> Add a new workout plan:\n     1. Go to: 'Manage Plans' > 'Add Plan'\n     2. Enter plan's name and your exercises\n     3. Save"
+                text: app.get_text(8)
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -133,7 +141,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Delete a workout plan:\n     1. Go to: 'Manage Plans' > 'Delete Plan'\n     2. Select a plan to delete\n     3. Confirm"
+                text: app.get_text(9)
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -143,7 +151,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Start a new session:\n     1. Go to: 'New Session'\n     2. Select one of your saved workouts\n     3. Change the date if needed\n     4. Start\n     5. Enter weight + reps for every set\n     6. Add a workout comment if needed and save"
+                text: app.get_text(10)
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -153,7 +161,7 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Check your progress:\n     1. Go to: 'Past Workouts'\n     2. Select one of your saved workouts\n     3. Press 'Show'"
+                text: app.get_text(11)
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -163,7 +171,17 @@
                 size_hint_y: None
 
             Label:
-                text: "-> Edit or delete Workouts:\n     1. Go to: 'Past Workouts'\n     2. Select one of your saved workouts\n     3. Press 'Make Changes'\n     4. Select a date\n     5. Edit the workout (Confirm the weight/rep values by adding the set or change the values if needed) OR delete the workout"
+                text: app.get_text(12)
+                font_size: root.width * 0.03
+                text_size: self.width, None
+                halign: "left"
+                valign: "top"
+                height: self.texture_size[1]
+                size_hint_x: 1
+                size_hint_y: None
+
+            Label:
+                text: app.get_text(74)
                 font_size: root.width * 0.03
                 text_size: self.width, None
                 halign: "left"
@@ -185,12 +203,12 @@
     FloatLayout:
 
         Label:
-            text: "Manage Plans"
+            text: app.get_text(4)
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
-            text: "Add Plan"
+            text: app.get_text(13)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.65}
@@ -199,7 +217,7 @@
                 app.root.current = "addplan"
 
         Button:
-            text: "Edit Plan"
+            text: app.get_text(14)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.50}
@@ -208,7 +226,7 @@
                 app.root.current = "editplan"
 
         Button:
-            text: "Delete Plan"
+            text: app.get_text(15)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
@@ -217,7 +235,7 @@
                 app.root.current = "delplan"
 
         Button:
-            text: "Back"
+            text: app.get_text(7)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
@@ -238,13 +256,13 @@
     FloatLayout:
 
         Label:
-            text: "Add Plan"
+            text: app.get_text(13)
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         TextInput:
             id: name_input
-            hint_text: "Name of your Plan"
+            hint_text: app.get_text(16)
             font_size: root.width * 0.045
             bold: True
             size_hint: 0.7, 0.065
@@ -257,7 +275,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.62}
 
         Button:
-            text: "Add Exercise"
+            text: app.get_text(17)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.45}
@@ -270,7 +288,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.38}
 
         Button:
-            text: "Save Plan"
+            text: app.get_text(18)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
@@ -279,7 +297,7 @@
             on_release: root.save_plan()
 
         Button:
-            text: "Cancel"
+            text: app.get_text(19)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
@@ -298,13 +316,13 @@
     FloatLayout:
 
         Label:
-            text: "Edit Plan"
+            text: app.get_text(14)
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Spinner:
             id: edit_spinner
-            text: "Select Plan"
+            text: app.get_text(20)
             font_size: root.width * 0.04
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
@@ -331,7 +349,7 @@
 
         Button:
             id: apply_btn
-            text: "Apply Changes"
+            text: app.get_text(21)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.05, "y": 0.07}
@@ -340,7 +358,7 @@
             on_release: root.open_popup()
 
         Button:
-            text: "Back"
+            text: app.get_text(7)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
@@ -384,7 +402,7 @@
         on_release: root.rm_callback(root.exercise_name) if root.rm_callback else None
 
     TextInput:
-        hint_text: "Add exercise..."
+        hint_text: app.get_text(22)
         font_size: root.width * 0.04
         multiline: False
         size_hint_x: 1 if root.is_add_row else 0
@@ -406,13 +424,13 @@
     FloatLayout:
 
         Label:
-            text: "Delete Plan"
+            text: app.get_text(15)
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Spinner:
             id: delplan_spinner
-            text: "Select Plan"
+            text: app.get_text(20)
             font_size: root.width * 0.04
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
@@ -424,7 +442,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
 
         Button:
-            text: "Delete"
+            text: app.get_text(23)
             font_size: root.width * 0.04
             background_color: 1, 0, 0, 1
             background_normal: ""
@@ -433,7 +451,7 @@
             on_release: root.open_popup()
 
         Button:
-            text: "Back"
+            text: app.get_text(7)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
@@ -453,19 +471,19 @@
     FloatLayout:
 
         Label:
-            text: "New Session"
+            text: app.get_text(5)
             font_size: root.width * 0.07
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         Spinner:
             id: workout_spinner
-            text: "Select Workout"
+            text: app.get_text(24)
             font_size: root.width * 0.04
             size_hint: 0.75, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.73}
 
         Label:
-            text: "Date:"
+            text: app.get_text(25)
             font_size: root.width * 0.04
             size_hint: 0.3, 0.08
             pos_hint: {"center_x": 0.16, "center_y": 0.58}
@@ -477,7 +495,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
 
         Button:
-            text: "Start Session"
+            text: app.get_text(26)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
@@ -493,7 +511,7 @@
             bold: True
 
         Button:
-            text: "Back"
+            text: app.get_text(7)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
@@ -520,8 +538,8 @@
 
         Button:
             id: prev_btn
-            text: "Previous Workout"
-            font_size: root.width * 0.02
+            text: app.get_text(27)
+            font_size: root.width * 0.017
             italic: True
             size_hint: 0.25, 0.05
             pos_hint: {"center_x": 0.14, "center_y": 0.92}
@@ -530,20 +548,19 @@
         Label:
             id: exerset_label
             font_size: root.width * 0.05
-            font_name: "data/Parkinsans-Bold.ttf"
             size_hint: 0.7, 0.15
             pos_hint: {"center_x": 0.5, "center_y": 0.87}
 
         TextInput:
             id: weight_input
-            hint_text: "Weight in KG"
+            hint_text: app.get_text(28)
             font_size: root.width * 0.04
             size_hint: 0.65, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.78}
 
         TextInput:
             id: reps_input
-            hint_text: "Reps"
+            hint_text: app.get_text(29)
             font_size: root.width * 0.04
             size_hint: 0.65, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.68}
@@ -556,36 +573,36 @@
             bold: True
 
         Button:
-            text: "Prev. Exercise"
-            font_size: root.width * 0.032
+            text: app.get_text(30)
+            font_size: root.width * 0.028
             size_hint: 0.28, 0.1
             pos_hint: {"center_x": 0.15, "center_y": 0.49}
             on_release: root.prev_exercise()
 
         Button:
-            text: "Add Set"
-            font_size: root.width * 0.032
+            text: app.get_text(31)
+            font_size: root.width * 0.028
             size_hint: 0.28, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.49}
             on_release: root.add_set()
 
         Button:
-            text: "Next Exercise"
-            font_size: root.width * 0.032
+            text: app.get_text(32)
+            font_size: root.width * 0.028
             size_hint: 0.28, 0.1
             pos_hint: {"center_x": 0.85, "center_y": 0.49}
             on_release: root.next_exercise()
 
         TextInput:
             id: comment_input
-            hint_text: "Comment"
-            font_name: "data/Montserrat-MediumItalic.ttf"
+            hint_text: app.get_text(33)
+            font_name: "data/Montserrat-Italic.ttf"
             font_size: root.width * 0.03
             size_hint: 0.5, 0.04
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
 
         Button:
-            text: "SAVE"
+            text: app.get_text(34)
             font_size: root.width * 0.045
             size_hint: 0.55, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.22}
@@ -594,7 +611,7 @@
             on_release: root.save_session()
 
         Button:
-            text: "Cancel"
+            text: app.get_text(19)
             font_size: root.width * 0.03
             size_hint: 0.3, 0.07
             pos_hint: {"x": 0.65, "y": 0.07}
@@ -613,7 +630,7 @@
     FloatLayout:
 
         Button:
-            text: "Back"
+            text: app.get_text(7)
             font_size: root.width * 0.03
             size_hint: 0.25, 0.04
             pos_hint: {"center_x": 0.14, "center_y": 0.92}
@@ -622,7 +639,7 @@
                 app.root.current = "home"
 
         Label:
-            text: "Past Workouts"
+            text: app.get_text(6)
             font_size: root.width * 0.07
             size_hint: 0.4, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.86}
@@ -641,14 +658,14 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.72}
 
         Button:
-            text: "Show"
+            text: app.get_text(35)
             font_size: root.width * 0.04
             size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.65}
             on_release: root.show_past_workouts()
 
         Button:
-            text: "Make Changes"
+            text: app.get_text(36)
             font_size: root.width * 0.04
             size_hint: 0.4, 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
@@ -667,7 +684,7 @@
             id: edit_btn
             opacity: 0
             disabled: True
-            text: "Edit"
+            text: app.get_text(37)
             font_size: root.width * 0.02
             size_hint: 0.3, 0.04
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
@@ -679,7 +696,7 @@
             id: del_btn
             opacity: 0
             disabled: True
-            text: "Delete"
+            text: app.get_text(23)
             font_size: root.width * 0.02
             size_hint: 0.3, 0.04
             pos_hint: {"center_x": 0.5, "center_y": 0.23}
@@ -689,7 +706,7 @@
 
         RecycleView:
             id: main_rv
-            size_hint_y: 0.5
+            size_hint_y: 0.6
             viewclass: "WorkoutLabel"
 
             RecycleBoxLayout:
@@ -703,8 +720,8 @@
 <WorkoutLabel@Label>:
     size_hint_y: None
     text_size: self.width, None
-    font_name: "data/NotoSansMono.ttf"
-    font_size: self.width * 0.018
+    font_name: "data/DejaVuSansMono-Bold.ttf"
+    font_size: self.width * 0.025
     height: self.texture_size[1] + dp(10)
     halign: "center"
     valign: "middle"
@@ -712,9 +729,9 @@
 
 
 <CancelPopup@PopUp>:
-    title: "Cancel"
+    title: app.get_text(19)
     size_hint: 0.8, 0.7
-    auto_dismiss: False
+    auto_dismiss: True
 
     canvas.before:
         Color:
@@ -726,17 +743,17 @@
     FloatLayout:
 
         Label:
-            text: "Are you sure?"
+            text: app.get_text(38)
             font_size: root.width * 0.05
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
-            text: "(Input will not be saved.)"
+            text: app.get_text(39)
             font_size: root.width * 0.03
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
-            text: "Yes"
+            text: app.get_text(40)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
@@ -746,7 +763,7 @@
                 app.root.current = "home"
 
         Button:
-            text: "No"
+            text: app.get_text(41)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
@@ -754,7 +771,7 @@
 
 
 <DelWrkPopup@Popup>:
-    title: "Delete Workout"
+    title: app.get_text(49)
     size_hint: 0.8, 0.7
     auto_dismiss: False
 
@@ -768,7 +785,7 @@
     FloatLayout:
 
         Label:
-            text: "Delete this workout?"
+            text: app.get_text(42)
             font_size: root.width * 0.05
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
@@ -779,14 +796,14 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
-            text: "No"
+            text: app.get_text(41)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
             on_release: root.dismiss()
 
         Button:
-            text: "Yes"
+            text: app.get_text(40)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
@@ -798,7 +815,7 @@
 
 
 <DelPlanPopup@Popup>:
-    title: "Delete Plan"
+    title: app.get_text(15)
     size_hint: 0.8, 0.7
     auto_dismiss: False
 
@@ -812,25 +829,25 @@
     FloatLayout:
 
         Label:
-            text: "Are you sure?"
+            text: app.get_text(38)
             font_size: root.width * 0.05
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
-            text: "(All workout history will be deleted.)"
+            text: app.get_text(43)
             font_size: root.width * 0.03
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
-            text: "No"
+            text: app.get_text(41)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
             on_release: root.dismiss()
 
         Button:
-            text: "Yes"
+            text: app.get_text(40)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
@@ -842,7 +859,7 @@
 
 
 <EditPlanPopup@Popup>:
-    title: "Edit Plan"
+    title: app.get_text(14)
     size_hint: 0.8, 0.7
     auto_dismiss: False
 
@@ -856,25 +873,25 @@
     FloatLayout:
 
         Label:
-            text: "Apply changes?"
+            text: app.get_text(44)
             font_size: root.width * 0.05
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Label:
-            text: "(Note: All the past data of removed exercises will be lost.)"
+            text: app.get_text(45)
             font_size: root.width * 0.03
             pos_hint: {"center_x": 0.5, "center_y": 0.75}
 
         Button:
-            text: "No"
+            text: app.get_text(41)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
             on_release: root.dismiss()
 
         Button:
-            text: "Yes"
+            text: app.get_text(40)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
@@ -886,41 +903,7 @@
 
 
 <PrevPopup@Popup>:
-    title: "Previous Workout"
-    size_hint: 0.8, 0.8
-    auto_dismiss: False
-
-    canvas.before:
-        Color:
-            rgba: 0.15, 0.15, 0.15, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
-    FloatLayout:
-
-        Label:
-            id: prev_label
-            font_name: "data/NotoSansMono.ttf"
-            font_size: root.width * 0.027
-            text_size: self.width, None
-            bold: True
-            halign: "center"
-            valign: "top"
-            height: self.texture_size[1]
-            size_hint: 0.8, 0.8
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
-
-        Button:
-            text: "Back"
-            font_size: root.width * 0.025
-            size_hint: 0.4, 0.1
-            pos_hint: {"center_x": 0.8, "center_y": 0.1}
-            on_release: root.dismiss()
-
-
-<WarningPopup@Popup>:
-    title: "Exit?"
+    title: app.get_text(27)
     size_hint: 0.8, 0.8
     auto_dismiss: True
 
@@ -934,21 +917,118 @@
     FloatLayout:
 
         Label:
-            text: "Exit app?"
+            id: prev_label
+            font_name: "data/DejaVuSansMono-Bold.ttf"
+            font_size: root.width * 0.027
+            text_size: self.width, None
+            bold: True
+            halign: "center"
+            valign: "top"
+            height: self.texture_size[1]
+            size_hint: 0.8, 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+
+        Button:
+            text: app.get_text(7)
+            font_size: root.width * 0.025
+            size_hint: 0.4, 0.1
+            pos_hint: {"center_x": 0.8, "center_y": 0.1}
+            on_release: root.dismiss()
+
+
+<WarningPopup@Popup>:
+    title: app.get_text(46)
+    size_hint: 0.8, 0.8
+    auto_dismiss: True
+
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: app.get_text(46)
             font_size: root.width * 0.05
             size_hint: 0.7, 0.08
             pos_hint: {"center_x": 0.5, "center_y": 0.85}
 
         Button:
-            text: "No"
+            text: app.get_text(40)
+            font_size: root.width * 0.04
+            size_hint: 0.5, 0.2
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            on_release: app.stop()
+
+        Button:
+            text: app.get_text(41)
             font_size: root.width * 0.04
             size_hint: 0.5, 0.2
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
             on_release: root.dismiss()
 
+
+<SettingsPopup@Popup>:
+    title: app.get_text(47)
+    size_hint: 0.8, 0.8
+    auto_dismiss: True
+
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: app.get_text(47)
+            font_size: root.width * 0.05
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: dp(10)
+            size_hint: 0.8, 0.1
+            pos_hint: {"center_x": 0.5, "center_y": 0.7}
+
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1.5
+
+            Label:
+                text: app.get_text(48)
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                font_size: root.width * 0.04
+                size_hint_x: 0.4
+
+            Spinner:
+                text: app.get_current_lang()
+                values: ["English", "Русский"]
+                font_size: root.width * 0.03
+                size_hint_x: 0.6
+                on_text: app.change_language(self.text)
+
+        Label:
+            text: app.get_text(73)
+            font_color: 0, 0.2, 0.7, 0.8
+            font_size: root.width * 0.025
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+
         Button:
-            text: "Yes"
-            font_size: root.width * 0.04
-            size_hint: 0.5, 0.2
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
-            on_release: app.stop()
+            text: app.get_text(7)
+            font_size: root.width * 0.025
+            size_hint: 0.4, 0.1
+            pos_hint: {"center_x": 0.8, "center_y": 0.1}
+            on_release: root.dismiss()
