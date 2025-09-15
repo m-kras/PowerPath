@@ -13,7 +13,7 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 
-__version__ = "1.3.4"
+__version__ = "1.3.5"
 
 
 class HomeScreen(Screen):
@@ -1062,7 +1062,7 @@ class Powerpath(App):
     def get_text(self, text_id):
         current = self.get_current_lang().lower()
 
-        with open(f"languages/{current}.csv", "r", encoding="utf-8") as file:  # open file of currently active language
+        with open(f"data/languages/{current}.csv", "r", encoding="utf-8") as file:  # open file of currently active language
             dictreader = csv.DictReader(file, delimiter=";")
             for obj in dictreader:
                 if int(obj["id"]) == text_id:
