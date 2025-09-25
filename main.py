@@ -14,7 +14,7 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 
-__version__ = "1.3.6"
+__version__ = "1.3.8"
 
 
 class HomeScreen(Screen):
@@ -1060,17 +1060,6 @@ class Powerpath(App):
                 writer = csv.writer(file)
                 writer.writerow(["Workouts"])  # write header
 
-        # create file to store language selection
-        if not self.get_data_path("current_lang.csv").is_file():
-            with open(
-                self.get_data_path("current_lang.csv"),
-                "a",
-                encoding="utf-8",
-                newline="",
-            ) as file:
-                writer = csv.writer(file)
-                writer.writerow(["English"])
-
         return sm  # start the app (screenmanager as the main widget)
 
     # return path where a file should be stored (for csv's)
@@ -1115,7 +1104,19 @@ class Powerpath(App):
 
         return self.workout_list
 
-    def get_current_lang(self):
+    def get_current_lang(self, for_file=True):
+
+        # create file to store language selection (if it does not exist yet)
+        if not self.get_data_path("current_lang.csv").is_file():
+            with open(
+                    self.get_data_path("current_lang.csv"),
+                    "a",
+                    encoding="utf-8",
+                    newline="",
+            ) as file:
+                writer = csv.writer(file)
+                writer.writerow(["english"])
+
         with open(
             self.get_data_path("current_lang.csv"), "r", encoding="utf-8"
         ) as file:
@@ -1123,11 +1124,22 @@ class Powerpath(App):
             for row in csv_reader:
                 current = row[0]
 
+        if not for_file:  # current should be for the spinner text (in original language)
+            if current == "english":
+                return "English"
+            elif current == "russian":
+                return "Русский"
+
         return current
 
     def change_language(self, new_lang):
 
         current = self.get_current_lang()
+
+        if new_lang == "English":
+            new_lang = "english"
+        elif new_lang == "Русский":
+            new_lang = "russian"
 
         if current != new_lang:  # if languages are not identical
             with open(
@@ -1140,7 +1152,7 @@ class Powerpath(App):
                 writer.writerow([new_lang])
 
     def get_text(self, text_id):
-        current = self.get_current_lang().lower()  # get currently activated language
+        current = self.get_current_lang()  # get currently activated language
 
         lang_path = resource_find(f"data/languages/{current}.csv")  # find correct relative path
 

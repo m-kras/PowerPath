@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,csv,ttf
 
 # (list) List of inclusions using pattern matching
-#source.include_patterns = assets/*,images/*.png,data/*.ttf,data/languages/*.csv
+source.include_patterns = assets/*,images/*.png,data/*.ttf,data/languages/*.csv
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
@@ -35,7 +35,7 @@ source.include_exts = py,png,jpg,kv,csv,ttf
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
-android.version_code = 1031100036
+android.version_code = 1031100038
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
