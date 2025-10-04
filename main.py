@@ -14,7 +14,7 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 
-__version__ = "1.3.8"
+__version__ = "1.3.9"
 
 
 class HomeScreen(Screen):
@@ -193,6 +193,7 @@ class EditPlanScreen(Screen):
 
     def on_plan_selected(self, plan):
         if plan != self.app.get_text(20):
+            self.exercise_list = []
             with open(
                 self.app.get_data_path(f"{plan}.csv"),
                 "r",
@@ -1129,6 +1130,8 @@ class Powerpath(App):
                 return "English"
             elif current == "russian":
                 return "Русский"
+            elif current == "german":
+                return "Deutsch"
 
         return current
 
@@ -1140,6 +1143,8 @@ class Powerpath(App):
             new_lang = "english"
         elif new_lang == "Русский":
             new_lang = "russian"
+        elif new_lang == "Deutsch":
+            new_lang = "german"
 
         if current != new_lang:  # if languages are not identical
             with open(

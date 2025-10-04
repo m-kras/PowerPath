@@ -35,7 +35,7 @@ source.include_patterns = assets/*,images/*.png,data/*.ttf,data/languages/*.csv
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
-android.version_code = 1031100038
+android.version_code = 1031100039
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
