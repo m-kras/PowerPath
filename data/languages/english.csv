@@ -33,7 +33,7 @@ id;text
 32;Next Exercise
 33;Comment
 34;SAVE
-35;Show
+35;Show History
 36;Make Changes
 37;Edit
 38;Are you sure?
@@ -73,3 +73,4 @@ id;text
 72;from
 73;Note: Please restart the app after changing the language.
 74;-> Change the app's language:\n     1. Enter the Settings (home screen, top left)\n     2. Choose a language\n     3. Restart the app
+75;Statistics
