@@ -35,7 +35,7 @@ source.include_patterns = assets/*,images/*.png,data/*.ttf,data/languages/*.csv
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
-android.version_code = 1031100039
+android.version_code = 1031100040
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
@@ -116,10 +116,10 @@ android.gradle_version = 8.13
 android.minapi = 21
 
 # (int) Android SDK version to use
-#android.sdk = 20
+#android.sdk = 35
 
 # (str) Android NDK version to use
-android.ndk = 25b
+android.ndk = r28b
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
 #android.ndk_api = 21
@@ -128,7 +128,7 @@ android.ndk = 25b
 #android.private_storage = True
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
-#android.ndk_path =
+#android.ndk_path = /home/mike/Android/android-ndk-r28b
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 #android.sdk_path =

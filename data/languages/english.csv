@@ -32,7 +32,7 @@ id;text
 31;Add Set
 32;Next Exercise
 33;Comment
-34;SAVE
+34;Save Workout
 35;Show History
 36;Make Changes
 37;Edit
@@ -74,3 +74,5 @@ id;text
 73;Note: Please restart the app after changing the language.
 74;-> Change the app's language:\n     1. Enter the Settings (home screen, top left)\n     2. Choose a language\n     3. Restart the app
 75;Statistics
+76;Avg. Reps
+77;Fav. Exercise (Most Sets)

@@ -603,7 +603,7 @@
 
         Button:
             text: app.get_text(34)
-            font_size: root.width * 0.045
+            font_size: root.width * 0.041
             size_hint: 0.55, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.22}
             background_color: 0, 0.5, 0.7, 1
@@ -661,22 +661,22 @@
             text: app.get_text(35)
             font_size: root.width * 0.035
             size_hint: 0.37, 0.06
-            pos_hint: {"center_x": 0.25, "center_y": 0.65}
+            pos_hint: {"center_x": 0.5, "center_y": 0.65}
             on_release: root.show_past_workouts()
 
         Button:
             text: app.get_text(36)
             font_size: root.width * 0.035
             size_hint: 0.37, 0.06
-            pos_hint: {"center_x": 0.75, "center_y": 0.65}
+            pos_hint: {"center_x": 0.5, "center_y": 0.58}
             on_release:
                 if root.ids.plan_spinner.text != app.get_text(20): root.edit_or_show(False)
 
         Button:
             text: app.get_text(75)
-            font_size: root.width * 0.037
-            size_hint: 0.4, 0.07
-            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+            font_size: root.width * 0.03
+            size_hint: 0.25, 0.04
+            pos_hint: {"center_x": 0.86, "center_y": 0.92}
             on_release:
                 root.open_stat_screen()
 
@@ -746,8 +746,23 @@
 
     FloatLayout:
 
+        Label:
+            text: app.get_text(75)
+            font_name: "data/DejaVuSansMono-Bold.ttf"
+            font_size: root.width * 0.045
+            size_hint: 0.5, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.95}
+
+        Label:
+            id: workout_label
+            font_name: "data/Montserrat-Italic.ttf"
+            font_size: root.width * 0.027
+            size_hint: 0.5, 0.06
+            pos_hint: {"center_x": 0.5, "center_y": 0.92}
+
         RecycleView:
             size_hint: 1, 0.8
+            pos_hint: {"center_x": 0.5, "y": 0.1}
             id: stat_rv
             viewclass: 'StatRow'
             RecycleBoxLayout:
@@ -758,31 +773,53 @@
                 spacing: dp(50)
                 padding: dp(40)
 
-    Button:
-        text: app.get_text(7)
-        font_size: root.width * 0.03
-        size_hint: 0.3, 0.07
-        pos_hint: {"x": 0.65, "y": 0.05}
-        on_release:
-            root.manager.transition.direction = "right"
-            app.root.current = "past"
+        Button:
+            text: app.get_text(7)
+            font_size: root.width * 0.03
+            size_hint: 0.3, 0.07
+            pos_hint: {"x": 0.65, "y": 0.05}
+            on_release:
+                root.manager.transition.direction = "right"
+                app.root.current = "past"
 
 
 <StatRow@BoxLayout>:
     stat_name: ""
+    stat_value: ""
     orientation: "vertical"
     size_hint_y: None
-    size_hint_x: 1
+    height: content.minimum_height + dp(10)
 
-    canvas.before:
-        Color:
-            rgba: 1, 1, 1, 1
-        Line:
-            width: 1
-            rectangle: (self.x, self.y, self.width, self.height)
+    BoxLayout:
+        id: content
+        orientation: "vertical"
+        size_hint_y: None
+        height: self.minimum_height
 
-    Label:
-        text: root.stat_name
+        Label:
+            text: root.stat_name + "\n"
+            font_name: "data/DejaVuSansMono-Bold.ttf"
+            font_size: root.width * 0.032
+            color: 1, 1, 1, 1
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        Label:
+            text: root.stat_value + "\n"
+            font_size: root.width * 0.032
+            color: 1, 1, 1, 1
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        Widget:
+            size_hint_y: None
+            height: dp(1)
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
 
 <CancelPopup@PopUp>:

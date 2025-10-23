@@ -15,7 +15,7 @@ import ast
 from tabulate import tabulate
 import stats
 
-__version__ = "1.3.9"
+__version__ = "1.4.0"
 
 
 class HomeScreen(Screen):
@@ -908,26 +908,38 @@ class StatScreen(Screen):
         self.app = App.get_running_app()
 
     def on_pre_enter(self, *args):
-        self.data_list = []
         self.current_plan = self.app.custom_var
+        self.ids.workout_label.text = "(" + self.current_plan + ")"
         self.collect_data()
+        self.ids.stat_rv.data = [
+            {"stat_name": self.app.get_text(76), "stat_value": self.avg_reps},
+            {"stat_name": self.app.get_text(77), "stat_value": self.fav_exercise}
+        ]
 
     def collect_data(self):
         workout_list = []
+        exercises = []
+
         with open(
             self.app.get_data_path(f"{self.current_plan}.csv"), "r", encoding="utf-8"
         ) as file:
             dictreader = csv.DictReader(file, delimiter=";")
 
+            fieldnames = dictreader.fieldnames
+            for ex in fieldnames:
+                if ex not in ["Date", "Comment"]:
+                    exercises.append(ex)
+
             for obj in dictreader:
                 workout_list.append(obj)
 
-        self.avg_rep_nr = stats.get_avg_rep_nr(workout_list)
+        self.avg_reps = stats.get_avg_reps(workout_list)
+        self.fav_exercise = stats.get_fav_exercise(workout_list, exercises)
 
 
- ########
+##########
 # POPUPS #
- ########
+##########
 class DelWrkPopup(Popup):
 
     def __init__(self, **kwargs):
