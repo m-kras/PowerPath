@@ -3,7 +3,7 @@ PowerPath is an app (created with python / kivy) that lets you track your traini
 
 ## Features
 - Create, edit and delete workout plans
-- Start training sessions based on your saved workouts
+- Start training sessions based on your plans
 - View your workout history
 - Check statistics about your training
 - Edit or delete past workouts
