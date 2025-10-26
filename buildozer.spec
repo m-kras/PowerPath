@@ -35,7 +35,7 @@ source.include_patterns = assets/*,images/*.png,data/*.ttf,data/languages/*.csv
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
-android.version_code = 1031100040
+android.version_code = 1031100041
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
@@ -113,16 +113,13 @@ android.gradle_plugin = 8.12.0
 android.gradle_version = 8.13
 
 # (int) Minimum API your APK / AAB will support.
-android.minapi = 21
-
-# (int) Android SDK version to use
-#android.sdk = 35
+android.minapi = 28
 
 # (str) Android NDK version to use
-android.ndk = r28b
+android.ndk = 28b
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
-#android.ndk_api = 21
+android.ndk_api = 28
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
@@ -330,7 +327,7 @@ android.debug_artifact = apk
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = master
+p4a.branch = develop
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD

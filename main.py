@@ -15,7 +15,7 @@ import ast
 from tabulate import tabulate
 import stats
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 
 class HomeScreen(Screen):
@@ -841,58 +841,64 @@ class PastScreen(Screen):
             self.ids.feedback_label.color = 1, 0, 0, 1
 
     def edit_or_show(self, showing_mode):
-        if showing_mode:  # True as parameter -> showing mode
+        if self.ids.plan_spinner.text != self.app.get_text(20):
 
-            self.ids.main_rv.opacity = 1
-            self.ids.main_rv.disabled = False
-            self.ids.main_rv.size_hint_y = 0.5
-            self.ids.main_rv.height = self.height * 0.5
+            if showing_mode:  # True as parameter -> showing mode
 
-            for wid in [self.ids.date_spinner, self.ids.edit_btn, self.ids.del_btn]:
-                wid.opacity = 0
-                wid.disabled = True
-                wid.height = 0
-                wid.size_hint_y = None
+                self.ids.main_rv.opacity = 1
+                self.ids.main_rv.disabled = False
+                self.ids.main_rv.size_hint_y = 0.5
+                self.ids.main_rv.height = self.height * 0.5
 
-        else:  # False as parameter -> editing mode
-            self.ids.main_rv.opacity = 0
-            self.ids.main_rv.disabled = True
-            self.ids.main_rv.size_hint_y = None
-            self.ids.main_rv.height = 0
+                for wid in [self.ids.date_spinner, self.ids.edit_btn, self.ids.del_btn]:
+                    wid.opacity = 0
+                    wid.disabled = True
+                    wid.height = 0
+                    wid.size_hint_y = None
 
-            self.ids.date_spinner.opacity = 1
-            self.ids.date_spinner.disabled = False
-            self.ids.date_spinner.height = self.height * 0.07
-            self.ids.date_spinner.size_hint_y = None
+            else:  # False as parameter -> editing mode
+                self.ids.main_rv.opacity = 0
+                self.ids.main_rv.disabled = True
+                self.ids.main_rv.size_hint_y = None
+                self.ids.main_rv.height = 0
 
-            self.ids.edit_btn.opacity = 1
-            self.ids.edit_btn.disabled = False
-            self.ids.edit_btn.height = self.height * 0.1
-            self.ids.edit_btn.size_hint_y = None
+                self.ids.date_spinner.opacity = 1
+                self.ids.date_spinner.disabled = False
+                self.ids.date_spinner.height = self.height * 0.07
+                self.ids.date_spinner.size_hint_y = None
 
-            self.ids.del_btn.opacity = 1
-            self.ids.del_btn.disabled = False
-            self.ids.del_btn.height = self.height * 0.1
-            self.ids.del_btn.size_hint_y = None
+                self.ids.edit_btn.opacity = 1
+                self.ids.edit_btn.disabled = False
+                self.ids.edit_btn.height = self.height * 0.1
+                self.ids.edit_btn.size_hint_y = None
 
-            all_dates = []
-            with open(
-                self.app.get_data_path(f"{self.ids.plan_spinner.text}.csv"),
-                "r",
-                encoding="utf-8",
-            ) as file:
-                dictreader = csv.DictReader(file, delimiter=";")
-                for workout in dictreader:
-                    all_dates.append(workout["Date"])  # get all dates
+                self.ids.del_btn.opacity = 1
+                self.ids.del_btn.disabled = False
+                self.ids.del_btn.height = self.height * 0.1
+                self.ids.del_btn.size_hint_y = None
 
-            sorted_dates = sorted(
-                all_dates, key=lambda x: datetime.strptime(x, "%d/%m/%Y"), reverse=True
-            )
-            self.ids.date_spinner.values = sorted_dates
+                all_dates = []
+                with open(
+                    self.app.get_data_path(f"{self.ids.plan_spinner.text}.csv"),
+                    "r",
+                    encoding="utf-8",
+                ) as file:
+                    dictreader = csv.DictReader(file, delimiter=";")
+                    for workout in dictreader:
+                        all_dates.append(workout["Date"])  # get all dates
+
+                sorted_dates = sorted(
+                    all_dates, key=lambda x: datetime.strptime(x, "%d/%m/%Y"), reverse=True
+                )
+                self.ids.date_spinner.values = sorted_dates
+
+        else:
+            self.ids.feedback_label.text = self.app.get_text(63)
+            self.ids.feedback_label.color = 1, 0, 0, 1
 
     def open_stat_screen(self):
-        if self.ids.plan_spinner.text != self.app.get_text(20): # plan must be selected
-            self.app.custom_var = self.ids.plan_spinner.text # share plan's name with StatScreen
+        if self.ids.plan_spinner.text != self.app.get_text(20):  # plan must be selected
+            self.app.custom_var = self.ids.plan_spinner.text  # share plan's name with StatScreen
             self.manager.transition.direction = "left"
             self.manager.current = "stats"
 
@@ -911,6 +917,7 @@ class StatScreen(Screen):
         self.current_plan = self.app.custom_var
         self.ids.workout_label.text = "(" + self.current_plan + ")"
         self.collect_data()
+
         self.ids.stat_rv.data = [
             {"stat_name": self.app.get_text(76), "stat_value": self.avg_reps},
             {"stat_name": self.app.get_text(77), "stat_value": self.fav_exercise}

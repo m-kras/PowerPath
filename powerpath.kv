@@ -670,7 +670,7 @@
             size_hint: 0.37, 0.06
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
             on_release:
-                if root.ids.plan_spinner.text != app.get_text(20): root.edit_or_show(False)
+                root.edit_or_show(False)
 
         Button:
             text: app.get_text(75)

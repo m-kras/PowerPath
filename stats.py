@@ -1,5 +1,4 @@
 import ast
-import re
 
 
 def get_avg_reps(workout_list):
@@ -8,7 +7,7 @@ def get_avg_reps(workout_list):
 
         for workout in workout_list:
             for key, value in workout.items():
-                if key not in ["Date", "Comment"]:
+                if key not in ["Date", "Comment"] and value != "":
                     value = ast.literal_eval(value)  # convert to literal list object
                     for obj in value:  # for every set of an exercise
                         reps.append(obj[1].replace(" Reps", ""))  # add rep number to list
@@ -35,8 +34,7 @@ def get_fav_exercise(workout_list, exercises):
 
         for workout in workout_list:
             for key, value in workout.items():
-                if key not in ["Date", "Comment"]:
-
+                if key not in ["Date", "Comment"] and value != "":
                     value = ast.literal_eval(value)  # convert to literal list object
                     for _ in value:  # for every set of an exercise
                         counting_dict.update({key: counting_dict[key] + 1})  # add +1 to the exercise
