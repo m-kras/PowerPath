@@ -602,6 +602,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.35}
 
         Button:
+            id: save_btn
             text: app.get_text(34)
             font_size: root.width * 0.041
             size_hint: 0.55, 0.1
@@ -609,6 +610,8 @@
             background_color: 0, 0.5, 0.7, 1
             background_normal: ""
             on_release: root.save_session()
+            opacity: 0
+            disabled: True
 
         Button:
             text: app.get_text(19)

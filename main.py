@@ -448,8 +448,8 @@ class SessionScreen(Screen):
         self.ids.feedback_label.text = ""
         self.ids.comment_input.text = ""
         self.ids.comment_input.hint_text = self.app.get_text(33)
-        self.ids.prev_btn.opacity = 1
-        self.ids.prev_btn.disabled = False
+        self.ids.save_btn.disabled = True
+        self.ids.save_btn.opacity = 0
 
         # for editing mode
         if type(self.app.custom_var[1]) == dict:
@@ -606,11 +606,19 @@ class SessionScreen(Screen):
             self.exer_list.index(self.current_exercise) + 1
         )  # old index in exer_list + 1
 
-        if new_index <= len(self.exer_list) - 1:  # last exercise
+        if new_index <= len(self.exer_list) - 1:
+            if new_index == len(self.exer_list) - 1:  # only if last exercise reached
+                self.ids.save_btn.disabled = False
+                self.ids.save_btn.opacity = 1
+
             self.sets_to_dict()  # write current sets into dict
 
             self.current_exercise = self.exer_list[new_index]  # get new exercise
-            self.ids.exerset_label.text = f"{self.current_exercise} - {self.app.get_text(64)} 1"  # new exerset_label text
+
+            # getting the number of already existing sets for the next exercise
+            next_sets =
+
+            self.ids.exerset_label.text = f"{self.current_exercise} - {self.app.get_text(64)} {next_set_number + 1}"  # new exerset_label text
 
             # update labels, input boxes
             self.ids.weight_input.text = ""
