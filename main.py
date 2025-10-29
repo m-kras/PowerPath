@@ -15,7 +15,7 @@ import ast
 from tabulate import tabulate
 import stats
 
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 
 
 class HomeScreen(Screen):
@@ -616,7 +616,11 @@ class SessionScreen(Screen):
             self.current_exercise = self.exer_list[new_index]  # get new exercise
 
             # getting the number of already existing sets for the next exercise
-            next_sets =
+            if self.current_exercise not in self.workout_dict.keys():  # first set
+                next_set_number = 0
+            else:
+                next_ex = self.workout_dict[self.current_exercise]
+                next_set_number = len(next_ex)
 
             self.ids.exerset_label.text = f"{self.current_exercise} - {self.app.get_text(64)} {next_set_number + 1}"  # new exerset_label text
 
