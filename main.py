@@ -4,17 +4,21 @@ from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.resources import resource_find
+from kivy.utils import platform
+if platform == "android":
+    from androidstorage4kivy import SharedStorage
 
 # other imports
 import csv
 import os.path
-import shutil
 from datetime import date
 from datetime import datetime
 from pathlib import Path
 import ast
 from tabulate import tabulate
 import stats
+import shutil
+
 
 __version__ = "1.4.2"
 
@@ -1109,18 +1113,24 @@ class BackupPopup(Popup):
             source_file = self.app.get_data_path(f"{self.ids.plan_spinner.text}.csv")
 
             try:
-                from android.storage import primary_external_storage_path
-                downloads_dir = os.path.join(primary_external_storage_path(), "Download")  # destination directory
-            except ImportError:
-                downloads_dir = os.path.expanduser("~/Downloads")  # for desktop testing
+                storage = SharedStorage()
+                downloads_dir = storage.get_downloads_dir()
+            except Exception as e:
+                # fallback for desktop testing
+                print("SharedStorage failed, using local Downloads:", e)
+                downloads_dir = os.path.expanduser("~/Downloads")
 
             os.makedirs(downloads_dir, exist_ok=True)
-
             dest_path = os.path.join(downloads_dir, f"{self.ids.plan_spinner.text}_backup.csv")
-            shutil.copy2(source_file, dest_path)  # copy to destination
 
-            self.ids.feedback_label.color = 0, 1, 0, 1
-            self.ids.feedback_label.text = f"{self.app.get_text(80)}{dest_path}"
+            try:
+                shutil.copy2(source_file, dest_path)  # copy to destination
+                self.ids.feedback_label.color = 0, 1, 0, 1
+                self.ids.feedback_label.text = f"{self.app.get_text(80)}{dest_path}"  # show path
+
+            except Exception as e:
+                self.ids.feedback_label.color = 1, 0, 0, 1
+                self.ids.feedback_label.text = f"Backup failed: {e}"
 
         else:
             self.ids.feedback_label.color = 1, 0, 0, 1
