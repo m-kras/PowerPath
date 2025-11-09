@@ -39,7 +39,7 @@ android.version_code = 1031100042
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,jnius,pyjnius,tabulate
+requirements = python3,kivy,jnius,pyjnius,tabulate,androidstorage4kivy
 
 android.sign = True
 android.keystore = powerpath-release-key.keystore

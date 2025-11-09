@@ -8,6 +8,7 @@ from kivy.resources import resource_find
 # other imports
 import csv
 import os.path
+import shutil
 from datetime import date
 from datetime import datetime
 from pathlib import Path
@@ -27,7 +28,10 @@ class HowToScreen(Screen):
 
 
 class ManageScreen(Screen):
-    pass
+
+    def open_backup_popup(self):
+        popup = BackupPopup()
+        popup.open()
 
 
 class AddPlanScreen(Screen):
@@ -1077,6 +1081,52 @@ class DelPlanPopup(Popup):
                 writer.writerow([obj])  # add every remaining workout plan
 
 
+class BackupPopup(Popup):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
+    def on_pre_open(self):
+
+        plans = []
+        with open(
+            self.app.get_data_path("all_workouts.csv"), "r", encoding="utf-8"
+        ) as file:
+            reader = csv.reader(file)
+            next(reader)  # skip header ("Workouts")
+            for line in reader:
+                for (obj) in line:  # iterating over each of the lists to get individual strings
+                    plans.append(obj)
+
+        self.ids.plan_spinner.values = plans
+
+        self.ids.feedback_label.text = ""
+
+
+    def backup_csv(self):
+        if self.ids.plan_spinner.text != self.app.get_text(20):  # if plan selected
+            source_file = self.app.get_data_path(f"{self.ids.plan_spinner.text}.csv")
+
+            try:
+                from android.storage import primary_external_storage_path
+                downloads_dir = os.path.join(primary_external_storage_path(), "Download")  # destination directory
+            except ImportError:
+                downloads_dir = os.path.expanduser("~/Downloads")  # for desktop testing
+
+            os.makedirs(downloads_dir, exist_ok=True)
+
+            dest_path = os.path.join(downloads_dir, f"{self.ids.plan_spinner.text}_backup.csv")
+            shutil.copy2(source_file, dest_path)  # copy to destination
+
+            self.ids.feedback_label.color = 0, 1, 0, 1
+            self.ids.feedback_label.text = f"{self.app.get_text(80)}{dest_path}"
+
+        else:
+            self.ids.feedback_label.color = 1, 0, 0, 1
+            self.ids.feedback_label.text = self.app.get_text(60)
+
+
 class PrevPopup(Popup):
     pass
 
@@ -1168,7 +1218,7 @@ class Powerpath(App):
                 ) in line:  # iterating over each of the lists to get individual strings
                     self.workout_list.append(
                         obj
-                    )  # append all available exercises to list
+                    )  # append all available plans to list
 
         return self.workout_list
 
