@@ -1,6 +1,6 @@
 # kivy imports
 from kivy.app import App
-from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
+from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.resources import resource_find
@@ -1121,47 +1121,62 @@ class BackupPopup(Popup):
 
             if platform == "android":
 
-                # Android classes
+                # import all necessary Anrdoid Java classes
                 PythonActivity = autoclass('org.kivy.android.PythonActivity')
                 Intent = autoclass('android.content.Intent')
-                Uri = autoclass('android.net.Uri')
                 File = autoclass('java.io.File')
                 FileInputStream = autoclass('java.io.FileInputStream')
-                FileOutputStream = autoclass('java.io.FileOutputStream')
 
                 currentActivity = PythonActivity.mActivity
 
-                # intent to let user pick export location
-                intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                intent = Intent(Intent.ACTION_CREATE_DOCUMENT)  # "save as" dialog
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.setType("text/csv")
                 intent.putExtra(Intent.EXTRA_TITLE, file_name)
 
-                # Callback: write file once user picks location
                 def on_activity_result(request_code, result_code, data):
-                    if result_code == currentActivity.RESULT_OK and data:
+
+                    # User cancelled → no crash
+                    if result_code != currentActivity.RESULT_OK or data is None:
+                        self.ids.feedback_label.color = 1, 0, 0, 1
+                        self.ids.feedback_label.text = "Export cancelled."
+                        try:
+                            activity.unbind(on_activity_result)
+                        except:
+                            pass
+                        return
+
+                    try:
                         uri = data.getData()
-                        # Open streams to copy CSV
                         input_stream = FileInputStream(File(internal_path))
                         output_stream = currentActivity.getContentResolver().openOutputStream(uri)
+
                         buffer = bytearray(1024)
                         while True:
-                            read_bytes = input_stream.read(buffer)
-                            if read_bytes == -1:
+                            r = input_stream.read(buffer)
+                            if r == -1:
                                 break
-                            output_stream.write(buffer[:read_bytes])
+                            output_stream.write(buffer[:r])
+
                         input_stream.close()
                         output_stream.close()
-                        print("CSV successfully exported!")
 
-                    # Unregister callback after use
-                    activity.unbind(on_activity_result)
+                        self.ids.feedback_label.color = 0, 1, 0, 1
+                        self.ids.feedback_label.text = "Export successful!"
 
-                # Bind the callback
-                activity.bind(on_activity_result=on_activity_result)
+                    except Exception as e:
+                        self.ids.feedback_label.color = 1, 0, 0, 1
+                        self.ids.feedback_label.text = f"Export failed: {e}"
 
-                # Launch the intent
-                currentActivity.startActivityForResult(intent, 1)
+                    try:
+                        activity.unbind(on_activity_result)
+
+                    except Exception as e:
+                        pass
+
+                activity.bind(on_activity_result=on_activity_result)  # bind callback
+
+                currentActivity.startActivityForResult(intent, 1)  # launch
 
             else:  # platform != "android"
                 # Open Save File dialog
