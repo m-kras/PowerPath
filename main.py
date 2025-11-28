@@ -4,9 +4,15 @@ from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.resources import resource_find
+
 from kivy.utils import platform
 if platform == "android":
-    from androidstorage4kivy import SharedStorage
+    from jnius import autoclass, cast
+    from android import activity
+else:
+    from plyer import filechooser
+    import shutil
+
 
 # other imports
 import csv
@@ -17,7 +23,6 @@ from pathlib import Path
 import ast
 from tabulate import tabulate
 import stats
-import shutil
 
 
 __version__ = "1.4.2"
@@ -1108,33 +1113,73 @@ class BackupPopup(Popup):
         self.ids.feedback_label.text = ""
 
 
-    def backup_csv(self):
-        if self.ids.plan_spinner.text != self.app.get_text(20):  # if plan selected
-            source_file = self.app.get_data_path(f"{self.ids.plan_spinner.text}.csv")
+    def export_csv(self):
+        if self.ids.plan_spinner.text != self.app.get_text(20):
 
-            try:
-                storage = SharedStorage()
-                downloads_dir = storage.get_downloads_dir()
-            except Exception as e:
-                # fallback for desktop testing
-                print("SharedStorage failed, using local Downloads:", e)
-                downloads_dir = os.path.expanduser("~/Downloads")
+            internal_path = f"{self.app.get_data_path(self.ids.plan_spinner.text)}.csv"  # origin
+            file_name = f"{self.ids.plan_spinner.text}_copy.csv"  # export name
 
-            os.makedirs(downloads_dir, exist_ok=True)
-            dest_path = os.path.join(downloads_dir, f"{self.ids.plan_spinner.text}_backup.csv")
+            if platform == "android":
 
-            try:
-                shutil.copy2(source_file, dest_path)  # copy to destination
-                self.ids.feedback_label.color = 0, 1, 0, 1
-                self.ids.feedback_label.text = f"{self.app.get_text(80)}{dest_path}"  # show path
+                # Android classes
+                PythonActivity = autoclass('org.kivy.android.PythonActivity')
+                Intent = autoclass('android.content.Intent')
+                Uri = autoclass('android.net.Uri')
+                File = autoclass('java.io.File')
+                FileInputStream = autoclass('java.io.FileInputStream')
+                FileOutputStream = autoclass('java.io.FileOutputStream')
 
-            except Exception as e:
-                self.ids.feedback_label.color = 1, 0, 0, 1
-                self.ids.feedback_label.text = f"Backup failed: {e}"
+                currentActivity = PythonActivity.mActivity
 
-        else:
-            self.ids.feedback_label.color = 1, 0, 0, 1
-            self.ids.feedback_label.text = self.app.get_text(60)
+                # intent to let user pick export location
+                intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.setType("text/csv")
+                intent.putExtra(Intent.EXTRA_TITLE, file_name)
+
+                # Callback: write file once user picks location
+                def on_activity_result(request_code, result_code, data):
+                    if result_code == currentActivity.RESULT_OK and data:
+                        uri = data.getData()
+                        # Open streams to copy CSV
+                        input_stream = FileInputStream(File(internal_path))
+                        output_stream = currentActivity.getContentResolver().openOutputStream(uri)
+                        buffer = bytearray(1024)
+                        while True:
+                            read_bytes = input_stream.read(buffer)
+                            if read_bytes == -1:
+                                break
+                            output_stream.write(buffer[:read_bytes])
+                        input_stream.close()
+                        output_stream.close()
+                        print("CSV successfully exported!")
+
+                    # Unregister callback after use
+                    activity.unbind(on_activity_result)
+
+                # Bind the callback
+                activity.bind(on_activity_result=on_activity_result)
+
+                # Launch the intent
+                currentActivity.startActivityForResult(intent, 1)
+
+            else:  # platform != "android"
+                # Open Save File dialog
+                dest = filechooser.save_file(title="Save CSV backup",
+                                             filters=[("CSV Files", "*.csv")],
+                                             filename=file_name)
+                if dest:
+                    save_path = dest[0]
+                    if not save_path.lower().endswith(".csv"):
+                        save_path += ".csv"  # add extension if necessary
+
+                    shutil.copy2(internal_path, save_path)
+                    self.ids.feedback_label.color = 0, 1, 0, 1
+                    self.ids.feedback_label.text = f"CSV exported to {save_path}"
+                else:
+                    # User cancelled
+                    self.ids.feedback_label.color = 1, 0, 0, 1
+                    self.ids.feedback_label.text = "Export cancelled."
 
 
 class PrevPopup(Popup):
