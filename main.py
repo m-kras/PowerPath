@@ -7,21 +7,23 @@ from kivy.resources import resource_find
 
 from kivy.utils import platform
 if platform == "android":
+    from android.permissions import request_permissions, Permission
     from jnius import autoclass, cast
     from android import activity
 else:
-    from plyer import filechooser
     import shutil
 
 
 # other imports
 import csv
 import os.path
+from plyer import filechooser
 from datetime import date
 from datetime import datetime
 from pathlib import Path
 import ast
 from tabulate import tabulate
+import pandas as pd
 import stats
 
 
@@ -184,6 +186,10 @@ class AddPlanScreen(Screen):
         else:  # no exercises added => no popup necessary
             self.manager.transition.direction = "right"
             self.manager.current = "manage"
+
+    def open_import_popup(self):
+        popup = ImportPopup()
+        popup.open()
 
 
 class EditPlanScreen(Screen):
@@ -1024,6 +1030,19 @@ class EditPlanPopup(Popup):
         self.app = App.get_running_app()
 
     def apply_changes(self):
+        if len(self.new_exercises) == 0:  # if all exercises have been removed
+            all_plans = self.app.get_workouts()
+            all_plans.remove(self.plan)
+
+            os.remove(self.app.get_data_path(f"{self.plan}.csv"))  # delete plan
+
+            with open(self.app.get_data_path("all_workouts.csv"), "w", encoding="utf-8", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["Workouts"])  # write header
+                for plan in all_plans:
+                    writer.writerow([plan])
+            return
+
         with open(
             self.app.get_data_path(f"{self.plan}.csv"), "r", encoding="utf-8"
         ) as file:
@@ -1110,18 +1129,17 @@ class BackupPopup(Popup):
 
         self.ids.plan_spinner.values = plans
 
-        self.ids.feedback_label.text = ""
-
+        self.ids.feedback_label.text = self.app.get_text(88)
 
     def export_csv(self):
         if self.ids.plan_spinner.text != self.app.get_text(20):
 
             internal_path = f"{self.app.get_data_path(self.ids.plan_spinner.text)}.csv"  # origin
-            file_name = f"{self.ids.plan_spinner.text}_copy.csv"  # export name
+            file_name = f"{self.ids.plan_spinner.text}_backup.csv"  # export name
 
             if platform == "android":
 
-                # import all necessary Anrdoid Java classes
+                # import all necessary Android Java classes
                 PythonActivity = autoclass('org.kivy.android.PythonActivity')
                 Intent = autoclass('android.content.Intent')
                 File = autoclass('java.io.File')
@@ -1139,7 +1157,7 @@ class BackupPopup(Popup):
                     # User cancelled → no crash
                     if result_code != currentActivity.RESULT_OK or data is None:
                         self.ids.feedback_label.color = 1, 0, 0, 1
-                        self.ids.feedback_label.text = "Export cancelled."
+                        self.ids.feedback_label.text = self.app.get_text(90)
                         try:
                             activity.unbind(on_activity_result)
                         except:
@@ -1162,11 +1180,11 @@ class BackupPopup(Popup):
                         output_stream.close()
 
                         self.ids.feedback_label.color = 0, 1, 0, 1
-                        self.ids.feedback_label.text = "Export successful!"
+                        self.ids.feedback_label.text = self.app.get_text(89)
 
                     except Exception as e:
                         self.ids.feedback_label.color = 1, 0, 0, 1
-                        self.ids.feedback_label.text = f"Export failed: {e}"
+                        self.ids.feedback_label.text = self.app.get_text(91)
 
                     try:
                         activity.unbind(on_activity_result)
@@ -1190,11 +1208,58 @@ class BackupPopup(Popup):
 
                     shutil.copy2(internal_path, save_path)
                     self.ids.feedback_label.color = 0, 1, 0, 1
-                    self.ids.feedback_label.text = f"CSV exported to {save_path}"
+                    self.ids.feedback_label.text = self.app.get_text(89)
                 else:
                     # User cancelled
                     self.ids.feedback_label.color = 1, 0, 0, 1
-                    self.ids.feedback_label.text = "Export cancelled."
+                    self.ids.feedback_label.text = self.app.get_text(90)
+
+
+class ImportPopup(Popup):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.app = App.get_running_app()
+
+    def on_pre_open(self):
+        self.ids.name_input.text = ""
+        self.ids.feedback_label.text = ""
+
+    def choose_file(self):
+        if self.ids.name_input.text == "":
+            self.ids.feedback_label.color = 1, 0, 0, 1
+            self.ids.feedback_label.text = self.app.get_text(56)
+            return
+
+        if platform == "android":
+            request_permissions([Permission.READ_EXTERNAL_STORAGE])  # request permission
+
+        file_path = filechooser.open_file(title="Select CSV file", filters=[("CSV files", "*.csv")])
+        if file_path:
+            self.copy_to_internal(file_path[0])
+        else:
+            self.ids.feedback_label.color = 1, 0, 0, 1
+            self.ids.feedback_label.text = self.app.get_text(86)
+
+    def copy_to_internal(self, path):
+        if path.endswith("_backup.csv"):
+            filename = self.ids.name_input.text.capitalize() + ".csv"
+            normal_name = self.ids.name_input.text.capitalize()
+            destination_path = os.path.join(self.app.user_data_dir, filename)
+            shutil.copy2(path, destination_path)
+
+            all_plans = self.app.get_workouts()
+            if normal_name not in all_plans and normal_name.lower() not in all_plans:
+                with open(self.app.get_data_path("all_workouts.csv"), "a", encoding="utf-8", newline="") as file:
+                    writer = csv.writer(file)
+                    writer.writerow([normal_name])  # add new plan to all_workouts.csv
+
+            self.ids.feedback_label.color = 0, 1, 0, 1
+            self.ids.feedback_label.text = f"{self.app.get_text(85)} {normal_name}"
+
+        else:
+            self.ids.feedback_label.color = 1, 0, 0, 1
+            self.ids.feedback_label.text = self.app.get_text(87)
 
 
 class PrevPopup(Popup):
@@ -1361,6 +1426,7 @@ class Powerpath(App):
                         "\\n", "\n"
                     )  # correctly interpret newline characters
                     return text
-    
+
+
 if __name__ == "__main__":
     Powerpath().run()

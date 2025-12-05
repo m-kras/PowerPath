@@ -80,3 +80,13 @@ id;text
 79;Create a Backup
 80;Backup saved to:
 81;Create
+82;Import
+83;Import Plan
+84;Select File
+85;Plan imported:
+86;Import cancelled.
+87;Invalid file.
+88;Important: Name file "yourplan_backup".
+89;Export successful!
+90;Export cancelled.
+91;Export failed.

@@ -80,3 +80,13 @@ id;text
 79;Backup erstellen
 80;Backup wurde erstellt:
 81;Erstellen
+82;Importieren
+83;Plan importieren
+84;Datei auswählen
+85;Plan importiert:
+86;Import abgebrochen.
+87;Datei ungültig.
+88;Wichtig: Nenne die Datei "deinplan_backup".
+89;Export erfolgreich!
+90;Export abgebrochen.
+91;Export fehlgeschlagen.

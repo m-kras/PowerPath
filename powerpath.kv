@@ -206,7 +206,7 @@
             text: app.get_text(78)
             font_size: root.width * 0.03
             size_hint: 0.26, 0.05
-            pos_hint: {"x": 0.7, "center_y": 0.95}
+            pos_hint: {"x": 0.7, "center_y": 0.92}
             on_release:
                 root.open_backup_popup()
 
@@ -263,9 +263,18 @@
 
     FloatLayout:
 
+        Button:
+            text: app.get_text(82)
+            font_size: root.width * 0.03
+            size_hint: 0.23, 0.04
+            pos_hint: {"x": 0.74, "center_y": 0.94}
+            on_release:
+                root.open_import_popup()
+
+
         Label:
             text: app.get_text(13)
-            font_size: root.width * 0.07
+            font_size: root.width * 0.065
             pos_hint: {"center_x": 0.5, "center_y": 0.9}
 
         TextInput:
@@ -649,6 +658,14 @@
                 root.manager.transition.direction = "right"
                 app.root.current = "home"
 
+        Button:
+            text: app.get_text(75)
+            font_size: root.width * 0.03
+            size_hint: 0.25, 0.04
+            pos_hint: {"center_x": 0.86, "center_y": 0.92}
+            on_release:
+                root.open_stat_screen()
+
         Label:
             text: app.get_text(6)
             font_size: root.width * 0.07
@@ -682,14 +699,6 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.58}
             on_release:
                 root.edit_or_show(False)
-
-        Button:
-            text: app.get_text(75)
-            font_size: root.width * 0.03
-            size_hint: 0.25, 0.04
-            pos_hint: {"center_x": 0.86, "center_y": 0.92}
-            on_release:
-                root.open_stat_screen()
 
         Spinner:
             id: date_spinner
@@ -1031,15 +1040,15 @@
         Spinner:
             id: plan_spinner
             text: app.get_text(20)
-            font_size: root.width * 0.03
-            size_hint: 0.5, 0.06
+            font_size: root.width * 0.025
+            size_hint: 0.6, 0.06
             pos_hint: {"center_x": 0.5, "center_y": 0.8}
 
         Label:
             id: feedback_label
             font_size: root.width * 0.025
             size_hint: 0.4, 0.05
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            pos_hint: {"center_x": 0.5, "center_y": 0.7}
 
         Button:
             text: app.get_text(81)
@@ -1047,6 +1056,48 @@
             size_hint: 0.5, 0.1
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             on_release: root.export_csv()
+
+
+<ImportPopup@Popup>:
+    title: app.get_text(78)
+    size_hint: 0.8, 0.8
+    auto_dismiss: True
+
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: app.get_text(83)
+            font_name: "data/DejaVuSansMono-Bold.ttf"
+            font_size: root.width * 0.05
+            size_hint: 0.7, 0.08
+            pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
+        TextInput:
+            id: name_input
+            hint_text: app.get_text(16)
+            font_size: root.width * 0.025
+            size_hint: 0.6, 0.06
+            pos_hint: {"center_x": 0.5, "center_y": 0.8}
+
+        Button:
+            text: app.get_text(84)
+            font_size: root.width * 0.025
+            size_hint: 0.6, 0.06
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            on_release: root.choose_file()
+
+        Label:
+            id: feedback_label
+            font_size: root.width * 0.025
+            size_hint: 0.4, 0.05
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
 
 
 <PrevPopup@Popup>:
