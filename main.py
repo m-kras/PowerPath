@@ -23,11 +23,10 @@ from datetime import datetime
 from pathlib import Path
 import ast
 from tabulate import tabulate
-import pandas as pd
 import stats
 
 
-__version__ = "1.4.2"
+__version__ = "1.4.3"
 
 
 class HomeScreen(Screen):
@@ -1231,15 +1230,18 @@ class ImportPopup(Popup):
             self.ids.feedback_label.text = self.app.get_text(56)
             return
 
-        if platform == "android":
-            request_permissions([Permission.READ_EXTERNAL_STORAGE])  # request permission
+        def on_selection(selection):  # a file needs to be selected first
+            if selection:
+                self.copy_to_internal(selection[0])
+            else:  # import cancelled
+                self.ids.feedback_label.color = (1, 0, 0, 1)
+                self.ids.feedback_label.text = self.app.get_text(86)
 
-        file_path = filechooser.open_file(title="Select CSV file", filters=[("CSV files", "*.csv")])
-        if file_path:
-            self.copy_to_internal(file_path[0])
-        else:
-            self.ids.feedback_label.color = 1, 0, 0, 1
-            self.ids.feedback_label.text = self.app.get_text(86)
+        filechooser.open_file(
+            title="Select CSV file",
+            filters=[("CSV files", "*.csv")],
+            on_selection=on_selection  # when path selected or import cancelled
+        )
 
     def copy_to_internal(self, path):
         if path.endswith("_backup.csv"):

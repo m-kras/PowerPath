@@ -35,11 +35,11 @@ source.include_patterns = assets/*,images/*.png,data/*.ttf,data/languages/*.csv
 version.regex = __version__ = ['"](.*)['"]
 version.filename = %(source.dir)s/main.py
 
-android.version_code = 1031100042
+android.version_code = 1031100043
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,jnius,pyjnius,tabulate
+requirements = python3,kivy,jnius,pyjnius,tabulate,plyer
 
 android.sign = True
 android.keystore = powerpath-release-key.keystore
