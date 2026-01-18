@@ -473,10 +473,10 @@ class SessionScreen(Screen):
         if type(self.app.custom_var[1]) == dict:
             self.ids.weight_input.text = ast.literal_eval(
                 self.app.custom_var[1][self.current_exercise]
-            )[0][0].replace(" KG", "")
+            )[0][0].replace(" KG", "")  # weight in first set
             self.ids.reps_input.text = ast.literal_eval(
                 self.app.custom_var[1][self.current_exercise]
-            )[0][1].replace(" Reps", "")
+            )[0][1].replace(" Reps", "")  # reps in first set
             self.ids.comment_input.text = self.app.custom_var[1]["Comment"]
             # hide prev_btn in editing mode
             self.ids.prev_btn.opacity = 0
@@ -573,20 +573,13 @@ class SessionScreen(Screen):
             self.ids.reps_input.text = ""
 
             if type(self.app.custom_var[1]) == dict:
-                try:  # try to get the original values of the next set
+                if self.app.custom_var[1][self.current_exercise] != "":  # if there are sets
                     self.ids.weight_input.text = ast.literal_eval(
                         self.app.custom_var[1][self.current_exercise]
                     )[set_nr][0].replace(" KG", "")
                     self.ids.reps_input.text = ast.literal_eval(
                         self.app.custom_var[1][self.current_exercise]
                     )[set_nr][1].replace(" Reps", "")
-
-                except (
-                    IndexError,
-                    SyntaxError,
-                ) as e:  # no more sets of this exercise available
-                    print(e)
-                    pass
 
         else:
             # configure neg. feedback
@@ -648,17 +641,13 @@ class SessionScreen(Screen):
             self.ids.feedback_label.text = ""
 
             if type(self.app.custom_var[1]) == dict:
-                try:  # try to show values of first set of next exercise
+                if self.app.custom_var[1][self.current_exercise] != "":  # if there are sets
                     self.ids.weight_input.text = ast.literal_eval(
                         self.app.custom_var[1][self.current_exercise]
                     )[0][0].replace(" KG", "")
                     self.ids.reps_input.text = ast.literal_eval(
                         self.app.custom_var[1][self.current_exercise]
                     )[0][1].replace(" Reps", "")
-
-                except (IndexError, SyntaxError) as e:
-                    print(e)
-                    pass
 
         else:  # last exercise already reached
             self.ids.feedback_label.text = self.app.get_text(68)

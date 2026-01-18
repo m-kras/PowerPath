@@ -18,6 +18,7 @@ def get_avg_reps(workout_list):
             rep_sum += int(nr)
 
         avg_reps = rep_sum / len(reps)  # sum of reps / number of sets
+        avg_reps = round(avg_reps, 1)
 
         return str(avg_reps)
 
